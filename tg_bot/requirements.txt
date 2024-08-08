@@ -1,0 +1,8 @@
+aiogram
+aiohttp
+python-dotenv
+psycopg2-binary
+celery
+arq
+redis
+asyncpg

@@ -1,0 +1,10 @@
+vk_api
+requests
+tqdm
+pandas
+torch
+transformers
+Pillow
+psycopg2-binary
+python-dotenv
+

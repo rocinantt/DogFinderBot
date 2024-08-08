@@ -1,0 +1,11 @@
+#Отслеживать корневую папку models через LFS
+models/
+
+
+#Игнорировать .env 
+/.env
+/tg_bot/.env
+/primary_parser/.env
+/regular_parser/.env  
+/photo_comparator/.env
+

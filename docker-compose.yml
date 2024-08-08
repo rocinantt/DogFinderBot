@@ -1,0 +1,105 @@
+version: '3.8'
+x-def-logging: &default-logging
+  logging:
+    driver: "loki"
+    options:
+      loki-url: ${LOKI_URL}
+      loki-batch-size: "100"
+      loki-retries: '2'
+      loki-max-backoff: '1000ms'
+      loki-timeout: '1s'
+
+services:
+
+  loki:
+    hostname: loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - loki
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yaml
+
+
+  db:
+
+    container_name: containers_db_1
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    <<: *default-logging
+
+
+  primary_parser:
+    build: ./primary_parser
+    depends_on:
+      - db
+    volumes:
+      - ./primary_parser:/app
+      - ./models:/app/models
+    <<: *default-logging
+
+
+  regular_parser:
+    build: ./regular_parser
+    depends_on:
+      - db
+    volumes:
+      - ./regular_parser:/app
+      - ./models:/app/models
+    <<: *default-logging
+
+
+  tg_bot:
+    build: ./tg_bot
+    depends_on:
+      - db
+    volumes:
+      - ./tg_bot:/app
+    <<: *default-logging
+
+  photo_comparator:
+    build: ./photo_comparator
+    depends_on:
+      - db
+    volumes:
+      - ./photo_comparator:/app
+      - ./models:/app/models
+    ports:
+      - '5000:5000'
+    <<: *default-logging
+
+
+networks:
+  default:
+    external:
+      name: dog_finder_network
+
+volumes:
+  db-data:

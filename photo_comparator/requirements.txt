@@ -1,0 +1,10 @@
+torch
+transformers
+Pillow
+requests
+scikit-learn
+asyncpg
+python-dotenv
+fastapi
+uvicorn
+aiohttp

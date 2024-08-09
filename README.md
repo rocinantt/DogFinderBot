@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/rocinantt/DogFinderBot">
     <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/dog2.jpg" alt="Logo" width="770" height="435">
   </a>
 
@@ -81,9 +81,9 @@ Use this space to show useful examples of how a project can be used. Additional 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
+- [ ] Расширение списка групп региона
+- [ ] Добавление списка регионов
+- [ ] Усовершенствование системы фильтрации постов
     - [ ] Nested Feature
 
 
@@ -98,9 +98,24 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- CONTACT -->
 ## Contact
+* <b>Степан Серебряков</b> <br />
+* s.s.serebryakov@yandex.ru
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+<div align="left">
+  <a href="https://t.me/rocinantt">
+    <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/8726389_telegram_alt_icon.png" alt="Telegram" width="100" height="100">
+  </a>
+  
+<br/>
+<br/>
+
+<div align="left">
+  <a href="https://github.com/rocinantt">
+    <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/8725822_github_icon.png" alt="Telegram" width="100" height="100">
+  </a>
+
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

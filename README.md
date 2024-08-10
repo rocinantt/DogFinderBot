@@ -53,7 +53,7 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Built With
+## Built With
 
 * ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 * ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
@@ -71,8 +71,13 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+<br />
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+<p align="center">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg1.jpg" alt="Screenshot 1" width="33%" style="margin-right: 20px;">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg2.jpg" alt="Screenshot 2" width="33%" style="margin-right: 20px;">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg3.jpg" alt="Screenshot 3" width="33%" style="margin-right: 20px;">
+</p>
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -82,9 +87,10 @@ Use this space to show useful examples of how a project can be used. Additional 
 ## Roadmap
 
 - [ ] Расширение списка групп региона
-- [ ] Добавление списка регионов
+- [ ] Переезд на более мощный сервер
+- [ ] Расширение списка регионов
 - [ ] Усовершенствование системы фильтрации постов
-    - [ ] Nested Feature
+- [ ] Добавление возможности отправки информации о найденном животном в группы через бота
 
 
 

@@ -104,16 +104,15 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- CONTACT -->
 ## Contact
-* <b>Степан Серебряков</b> <br />
-* s.s.serebryakov@yandex.ru
+
 
 
 <div align="left">
   <a href="https://t.me/rocinantt">
     <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/8726389_telegram_alt_icon.png" alt="Telegram" width="100" height="100">
+    
   </a>
   
-<br/>
 <br/>
 
 <div align="left">

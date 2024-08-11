@@ -74,9 +74,9 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 <br />
 
 <p align="center">
-  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg1.jpg" alt="Screenshot 1" width="33%" style="margin-right: 20px;">
-  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg2.jpg" alt="Screenshot 2" width="33%" style="margin-right: 20px;">
-  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg3.jpg" alt="Screenshot 3" width="33%" style="margin-right: 20px;">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg1.jpg" alt="Screenshot 1" width="30%" style="margin-right: 20px;">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg2.jpg" alt="Screenshot 2" width="30%" style="margin-right: 20px;">
+  <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/tg3.jpg" alt="Screenshot 3" width="30%" style="margin-right: 20px;">
 </p>
 
 
@@ -106,21 +106,19 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 
+<br/>
 
 <div align="left">
   <a href="https://t.me/rocinantt">
     <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/8726389_telegram_alt_icon.png" alt="Telegram" width="100" height="100">
     
   </a>
-  
+<br/>
 <br/>
 
 <div align="left">
   <a href="https://github.com/rocinantt">
     <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/8725822_github_icon.png" alt="Telegram" width="100" height="100">
   </a>
-
-
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

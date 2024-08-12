@@ -30,7 +30,7 @@ app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=4)
 
 # Initialize model and processor
-model_path = os.path.join('/app/models', 'convnextv2-large-dogbreed')
+model_path = '/app/models'
 processor = AutoImageProcessor.from_pretrained(model_path)
 model = AutoModelForImageClassification.from_pretrained(model_path)
 model.classifier = torch.nn.Identity()
@@ -44,7 +44,6 @@ class ImageRequest(BaseModel):
 
 async def find_similar_images(image_url: str, region: str, days: int, city: Optional[str] = None):
     """Find similar images in the database."""
-    date_threshold = datetime.now() - timedelta(days=days)
     
     # Fetch posts from the database
     posts = await get_posts(region, days, city)

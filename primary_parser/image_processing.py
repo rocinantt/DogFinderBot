@@ -5,7 +5,7 @@ import torch
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 
 # Load the model and processor
-model_path = os.path.join('/app/models', 'convnextv2-large-dogbreed')
+model_path = '/app/models'
 processor = AutoImageProcessor.from_pretrained(model_path)
 model = AutoModelForImageClassification.from_pretrained(model_path)
 

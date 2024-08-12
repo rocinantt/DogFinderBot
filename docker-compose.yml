@@ -62,7 +62,7 @@ services:
       - db
     volumes:
       - ./primary_parser:/app
-      - ./model:/app/model
+      - ./models:/app/models
     <<: *default-logging
 
 
@@ -72,7 +72,7 @@ services:
       - db
     volumes:
       - ./regular_parser:/app
-      - ./model:/app/model
+      - ./models:/app/models
     <<: *default-logging
 
 
@@ -90,7 +90,7 @@ services:
       - db
     volumes:
       - ./photo_comparator:/app
-      - ./model:/app/model
+      - ./models:/app/models
     ports:
       - '5000:5000'
     <<: *default-logging

@@ -9,3 +9,4 @@ models/
 /regular_parser/.env  
 /photo_comparator/.env
 
+photo/

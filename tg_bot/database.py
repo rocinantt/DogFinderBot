@@ -27,8 +27,7 @@ def get_user_region(user_id):
         conn.rollback()
         logger.error(f"Error fetching user region: {e}")
         return None
-    finally:
-        conn.close()
+
 
 def save_user_region(user_id, region):
     """Saves or updates the region of a user."""
@@ -42,8 +41,7 @@ def save_user_region(user_id, region):
     except psycopg2.Error as e:
         conn.rollback()
         logger.error(f"Error saving user region: {e}")
-    finally:
-        conn.close()
+
 
 def get_regions():
     """Fetches all unique regions from the vk_groups table."""
@@ -56,8 +54,7 @@ def get_regions():
         conn.rollback()
         logger.error(f"Error fetching regions: {e}")
         return []
-    finally:
-        conn.close()
+
 
 def get_areas(region):
     """Fetches all unique regions from the vk_groups table."""
@@ -70,8 +67,7 @@ def get_areas(region):
         conn.rollback()
         logger.error(f"Error fetching areas: {e}")
         return []
-    finally:
-        conn.close()
+
 
 def get_districts(area):
     """Fetches all unique regions from the vk_groups table."""
@@ -99,5 +95,3 @@ def get_groups(region):
         conn.rollback()
         logger.error(f"Error fetching groups: {e}")
         return []
-    finally:
-        conn.close()

@@ -80,8 +80,7 @@ def get_districts(area):
         conn.rollback()
         logger.error(f"Error fetching districts: {e}")
         return []
-    finally:
-        conn.close()
+
 
 
 def get_groups(region):

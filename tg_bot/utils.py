@@ -30,9 +30,11 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     area = data.get('area')
     district = data.get('district')
     unassigned = data.get('unassigned', False)
+    file_info = await Bot(token=API_TOKEN).get_file(photo_file_id)
+    image_url = f"https://api.telegram.org/file/bot{API_TOKEN}/{file_info.file_path}"
 
     query_params = {
-        'image_url': f"https://api.telegram.org/file/bot{API_TOKEN}/{await Bot(token=API_TOKEN).get_file(photo_file_id).file_path}",
+        'image_url': image_url,
         'region': region,
         'days': days,
     }

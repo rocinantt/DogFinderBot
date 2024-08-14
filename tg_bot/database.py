@@ -38,14 +38,38 @@ def save_user_region(user_id, region):
     except psycopg2.Error as e:
         logger.error(f"Error saving user region: {e}")
 
-def get_regions(regions_data):
-    """Fetches all unique regions from regions_data."""
+def get_regions():
+    """Fetches all unique regions from the vk_groups table."""
     try:
-        return list(regions_data.keys())
-    except Exception as e:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT DISTINCT region FROM vk_posts")
+            regions = cursor.fetchall()
+            return [region[0] for region in regions]
+    except psycopg2.Error as e:
         logger.error(f"Error fetching regions: {e}")
         return []
 
+def get_areas(region):
+    """Fetches all unique regions from the vk_groups table."""
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT DISTINCT area FROM vk_posts WHERE region = %s", (region,))
+            areas = cursor.fetchall()
+            return [area[0] for area in areas]
+    except psycopg2.Error as e:
+        logger.error(f"Error fetching areas: {e}")
+        return []
+
+def get_districts(area):
+    """Fetches all unique regions from the vk_groups table."""
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT DISTINCT district FROM vk_posts WHERE area = %s", (area,))
+            districts = cursor.fetchall()
+            return [district[0] for district in districts]
+    except psycopg2.Error as e:
+        logger.error(f"Error fetching districts: {e}")
+        return []
 
 
 def get_groups(region):

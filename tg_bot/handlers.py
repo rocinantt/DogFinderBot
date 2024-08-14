@@ -7,9 +7,9 @@ from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from keyboards import get_regions_markup,  get_days_markup, get_areas_markup, get_districts_markup
 from utils import load_faq, search_similar_posts
-from database import get_user_region, save_user_region, get_groups
+from database import get_user_region, save_user_region, get_groups, get_areas, get_regions, get_districts
 from config import logger
-from locations import regions_data, get_districts_by_area, get_areas_by_region
+#from locations import regions_data, get_districts_by_area, get_areas_by_region
 
 router = Router()
 
@@ -41,7 +41,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
         await state.set_state(Form.photo)
     else:
         logging.info(f"Пользователь {message.from_user.id} начал пользоваться ботом")
-        await message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup(regions_data))
+        await message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
         await state.set_state(Form.region)
 
 @router.message(Command(commands=['faq']))
@@ -51,7 +51,7 @@ async def handle_faq(message: types.Message):
 
 @router.message(Command(commands=['change_region']))
 async def handle_change_region(message: types.Message, state: FSMContext):
-    await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup(regions_data))
+    await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup())
     await state.set_state(Form.region)
 
 @router.message(Form.region)
@@ -71,7 +71,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
         await message.answer("Фото получено, выберите район поиска или нажмите 'Нераспределенные' или 'Пропустить'.", reply_markup=get_areas_markup(user_region))
         await state.set_state(Form.area)
     else:
-        await message.answer("Произошла ошибка. Пожалуйста, сначала выберите регион.", reply_markup=get_regions_markup(regions_data))
+        await message.answer("Произошла ошибка. Пожалуйста, сначала выберите регион.", reply_markup=get_regions_markup())
         await state.set_state(Form.region)
 
 @router.message(Form.area)
@@ -90,7 +90,7 @@ async def handle_area(message: types.Message, state: FSMContext):
     else:
         await state.update_data(area=message.text, unassigned=False)
         # Проверка, если для выбранной области есть районы (districts)
-        districts = get_districts_by_area(data.get('region'), message.text)
+        districts = get_districts(message.text)
         if districts:
             await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                  reply_markup=get_districts_markup(districts))

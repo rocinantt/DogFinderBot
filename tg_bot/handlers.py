@@ -5,16 +5,19 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
 from aiogram.enums import ParseMode
-from keyboards import get_regions_markup, get_cities_markup, get_days_markup
+from keyboards import get_regions_markup,  get_days_markup, get_areas_markup, get_districts_markup
 from utils import load_faq, search_similar_posts
 from database import get_user_region, save_user_region, get_groups
 from config import logger
+from locations import regions_data, get_districts_by_area, get_areas_by_region
+
 router = Router()
 
 class Form(StatesGroup):
     photo = State()
     region = State()
-    city = State()
+    area = State()
+    district = State()
     days = State()
 
 def register_handlers(dp: Dispatcher):
@@ -25,7 +28,8 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(handle_end, Command(commands=['end']))
     dp.message.register(handle_photo, Form.photo, F.content_type == types.ContentType.PHOTO)
     dp.message.register(handle_region, Form.region)
-    dp.message.register(handle_city, Form.city)
+    dp.message.register(handle_area, Form.area)
+    dp.message.register(handle_district, Form.district)
     dp.message.register(handle_days, Form.days)
 
 @router.message(Command(commands=['start']))
@@ -37,7 +41,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
         await state.set_state(Form.photo)
     else:
         logging.info(f"Пользователь {message.from_user.id} начал пользоваться ботом")
-        await message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
+        await message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup(regions_data))
         await state.set_state(Form.region)
 
 @router.message(Command(commands=['faq']))
@@ -47,21 +51,8 @@ async def handle_faq(message: types.Message):
 
 @router.message(Command(commands=['change_region']))
 async def handle_change_region(message: types.Message, state: FSMContext):
-    await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup())
+    await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup(regions_data))
     await state.set_state(Form.region)
-
-@router.message(Form.photo, F.content_type == types.ContentType.PHOTO)
-async def handle_photo(message: types.Message, state: FSMContext):
-    logger.info(f"Received photo from {message.from_user.id}")
-    await state.update_data(photo=message.photo[-1].file_id)
-    user_region = get_user_region(message.from_user.id)
-    if user_region:
-        await state.update_data(region=user_region)
-        await message.answer("Пожалуйста, выберите населенный пункт для поиска или нажмите 'Пропустить'.", reply_markup=get_cities_markup(user_region))
-        await state.set_state(Form.city)
-    else:
-        await message.answer("Произошла ошибка. Пожалуйста, сначала выберите регион.", reply_markup=get_regions_markup())
-        await state.set_state(Form.region)
 
 @router.message(Form.region)
 async def handle_region(message: types.Message, state: FSMContext):
@@ -70,11 +61,51 @@ async def handle_region(message: types.Message, state: FSMContext):
     await message.answer(f"Вы выбрали регион {message.text}. Теперь отправьте фото найденной собаки.", reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(Form.photo)
 
-@router.message(Form.city)
-async def handle_city(message: types.Message, state: FSMContext):
-    logger.info(f"City selected by {message.from_user.id}: {message.text}")
-    if message.text != "Пропустить":
-        await state.update_data(city=message.text)
+@router.message(Form.photo, F.content_type == types.ContentType.PHOTO)
+async def handle_photo(message: types.Message, state: FSMContext):
+    logger.info(f"Received photo from {message.from_user.id}")
+    await state.update_data(photo=message.photo[-1].file_id)
+    user_region = get_user_region(message.from_user.id)
+    if user_region:
+        await state.update_data(region=user_region)
+        await message.answer("Фото получено, выберите район поиска или нажмите 'Нераспределенные' или 'Пропустить'.", reply_markup=get_areas_markup(user_region))
+        await state.set_state(Form.area)
+    else:
+        await message.answer("Произошла ошибка. Пожалуйста, сначала выберите регион.", reply_markup=get_regions_markup(regions_data))
+        await state.set_state(Form.region)
+
+@router.message(Form.area)
+async def handle_area(message: types.Message, state: FSMContext):
+    logger.info(f"Area selected by {message.from_user.id}: {message.text}")
+    if message.text == "Пропустить":
+        await state.update_data(area=None)
+        await message.answer("Выбран поиск по всему региону. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+        await state.set_state(Form.days)
+    elif message.text == "Нераспределенные":
+        await state.update_data(area=None, district=None, unassigned=True)
+        await message.answer("Выбран поиск по нераспределенным постам. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+        await state.set_state(Form.days)
+    else:
+        await state.update_data(area=message.text, unassigned=False)
+        # Проверка, если для выбранной области есть районы (districts)
+        districts = get_districts_by_area(state.get_data().get('region'), message.text)
+        if districts:
+            await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
+                                 reply_markup=get_districts_markup(message.text))
+            await state.set_state(Form.district)
+        else:
+            await message.answer(
+                f"Вы выбрали {message.text}. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.",
+                reply_markup=get_days_markup())
+            await state.set_state(Form.days)
+
+@router.message(Form.district)
+async def handle_district(message: types.Message, state: FSMContext):
+    logger.info(f"District selected by {message.from_user.id}: {message.text}")
+    if message.text == "Пропустить":
+        await state.update_data(district=None)
+    else:
+        await state.update_data(district=message.text)
     await message.answer("Фото получено. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
     await state.set_state(Form.days)
 

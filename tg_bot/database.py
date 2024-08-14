@@ -2,6 +2,7 @@
 import psycopg2
 from psycopg2.extras import DictCursor
 from config import DATABASE_URL, logger
+from locations import regions_data
 
 # Establish a database connection
 try:
@@ -33,27 +34,15 @@ def save_user_region(user_id, region):
     except psycopg2.Error as e:
         logger.error(f"Error saving user region: {e}")
 
-def get_regions():
-    """Fetches all unique regions from the vk_groups table."""
+def get_regions(regions_data):
+    """Fetches all unique regions from regions_data."""
     try:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT region FROM vk_groups")
-            regions = cursor.fetchall()
-            return [region[0] for region in regions]
-    except psycopg2.Error as e:
+        return list(regions_data.keys())
+    except Exception as e:
         logger.error(f"Error fetching regions: {e}")
         return []
 
-def get_cities(region):
-    """Fetches all unique cities for a given region."""
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT city FROM vk_groups WHERE region = %s", (region,))
-            cities = cursor.fetchall()
-            return [city[0] for city in cities if city[0]]
-    except psycopg2.Error as e:
-        logger.error(f"Error fetching cities: {e}")
-        return []
+
 
 def get_groups(region):
     """Fetches group names and links for a given region."""

@@ -19,27 +19,35 @@ def load_faq():
         return "FAQ файл не найден. Пожалуйста, попробуйте позже."
 
 # Search for similar posts
+# Search for similar posts
 async def search_similar_posts(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     data = await state.get_data()
     photo_file_id = data['photo']
     region = data.get('region')
     days = data['days']
-    city = data.get('city')
+    area = data.get('area')
+    district = data.get('district')
+    unassigned = data.get('unassigned', False)  # Новый параметр
 
-    bot = Bot(token=API_TOKEN)
-    async with bot:
-        photo_file = await bot.get_file(photo_file_id)
-        photo_url = f"https://api.telegram.org/file/bot{API_TOKEN}/{photo_file.file_path}"
-        logger.info(f"Пользователь {user_id} загрузил фото {photo_url}")
-        session = aiohttp.ClientSession()
+    query_params = {
+        'image_url': f"https://api.telegram.org/file/bot{API_TOKEN}/{await Bot(token=API_TOKEN).get_file(photo_file_id).file_path}",
+        'region': region,
+        'days': days,
+    }
+
+    if unassigned:
+        query_params['unassigned'] = True
+    else:
+        query_params['area'] = area
+        if district:
+            query_params['district'] = district
+
+    logger.info(f"Пользователь {user_id} запрашивает поиск с параметрами: {query_params}")
+
+    async with aiohttp.ClientSession() as session:
         try:
-            async with session.post('http://photo_comparator:5000/compare', json={
-                'image_url': photo_url,
-                'region': region,
-                'days': days,
-                'city': city
-            }, timeout=aiohttp.ClientTimeout(total=60)) as response:
+            async with session.post('http://photo_comparator:5000/compare', json=query_params, timeout=aiohttp.ClientTimeout(total=60)) as response:
                 if response.status == 200:
                     results = await response.json()
                     await send_results(message, results)
@@ -49,8 +57,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         except Exception as e:
             logger.exception(f"Exception during search_similar_posts: {e}")
             await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
-        finally:
-            await session.close()
+
 
 # Send results to the user
 async def send_results(message: types.Message, results):
@@ -64,3 +71,5 @@ async def send_results(message: types.Message, results):
 {result['post_link']}
         """
         await message.answer(text, parse_mode=ParseMode.HTML)
+
+

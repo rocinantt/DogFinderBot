@@ -19,10 +19,10 @@ def get_areas_markup(region):
     builder.add(KeyboardButton(text="Нераспределенные"))
     return builder.as_markup(resize_keyboard=True)
 
-def get_districts_markup(area):
+def get_districts_markup(districts):
     """Генерирует клавиатуру с выбором районов СПБ."""
     builder = ReplyKeyboardBuilder()
-    for district in get_districts(area):
+    for district in districts:
         builder.add(KeyboardButton(text=district))
     builder.add(KeyboardButton(text="Пропустить"))
     return builder.as_markup(resize_keyboard=True)

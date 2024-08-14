@@ -9,7 +9,7 @@ from keyboards import get_regions_markup,  get_days_markup, get_areas_markup, ge
 from utils import load_faq, search_similar_posts
 from database import get_user_region, save_user_region, get_groups, get_areas, get_regions, get_districts
 from config import logger
-#from locations import regions_data, get_districts_by_area, get_areas_by_region
+from locations import regions_data, get_districts_by_area, get_areas_by_region
 
 router = Router()
 
@@ -90,7 +90,8 @@ async def handle_area(message: types.Message, state: FSMContext):
     else:
         await state.update_data(area=message.text, unassigned=False)
         # Проверка, если для выбранной области есть районы (districts)
-        districts = get_districts(message.text)
+        region = data['region']
+        districts = get_districts_by_area(region, message.text)
         if districts:
             await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                  reply_markup=get_districts_markup(districts))

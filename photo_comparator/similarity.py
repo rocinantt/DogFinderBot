@@ -9,7 +9,7 @@ def calculate_similarity(query_features, post_features):
     max_similarity = np.max(similarities)
     return max_similarity
 
-def get_top_n_similar_posts(query_features, posts, n=10):
+def get_top_n_similar_posts(query_features, posts, n=5):
     """Get the top N similar posts based on similarity scores."""
     similarities = []
     for post in posts:

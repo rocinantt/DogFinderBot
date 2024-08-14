@@ -46,7 +46,8 @@ def format_post_data(post, group_id):
         "date": datetime.utcfromtimestamp(post['date']).strftime('%Y-%m-%d %H:%M:%S'),
         "photos": photos,
         "post_link": f"https://vk.com/wall{post['owner_id']}_{post['id']}",
-        "group_id": group_id
+        "group_id": group_id,
+        'text': post['text']
     }
     return post_data
 

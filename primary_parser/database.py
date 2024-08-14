@@ -3,20 +3,33 @@ from psycopg2.extras import Json
 from config import DATABASE_URL, logger
 from image_processing import process_post
 from tqdm import tqdm
+from utils import find_all_locations, spb_district_dict, lo_dict
 
-
-def save_posts_to_db(posts):
+def save_posts_to_db(posts, default_region, default_area):
     """Save posts to the database."""
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     for post in tqdm(posts, desc='Extracting features and saving posts to the database', total=len(posts)):
         try:
+            #Извлечение признаков изображения
             features = process_post(post)
-            cursor.execute("""
-                INSERT INTO vk_posts (post_id, group_id, date, post_link, features)
-                VALUES (%s, %s, %s, %s, %s)
-                """, (post['post_id'], post['group_id'], post['date'], post['post_link'], Json(features)))
+
+            #Извлечение локаций из текста
+            text = post.get('text', '')
+            locations = find_all_locations(text)
+
+            #Если локации в тексте не найдены
+            if not locations:
+                locations = [(default_region, default_area, None)]
+
+            #Сохраняем пост для каждой найденной локации
+            for region, area, district in locations:
+                cursor.execute("""
+                    INSERT INTO vk_posts (post_id, group_id, date, post_link, features, region, area, district)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (post['post_id'], post['group_id'], post['date'], post['post_link'],
+                          Json(features), region, area, district))
         except Exception as e:
             logger.error(f"Error processing post {post['post_id']}: {e}")
             continue
@@ -39,15 +52,15 @@ def check_group_exists(group_id):
 
     return exists
 
-def add_group_to_db(group_id, region, city, group_name, group_link):
+def add_group_to_db(group_id, region, area, group_name, group_link, include_reposts):
     """Add a new group to the database."""
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO vk_groups (group_id, region, city, group_name, group_link, last_post_date)
-        VALUES (%s, %s, %s, %s, %s, (SELECT MAX(date) FROM vk_posts WHERE group_id = %s))
-    """, (group_id, region, city, group_name, group_link, group_id))
+        INSERT INTO vk_groups (group_id, region, area, group_name, group_link, last_post_date, include_reposts)
+        VALUES (%s, %s, %s, %s, %s, (SELECT MAX(date) FROM vk_posts WHERE group_id = %s), %s)
+    """, (group_id, region, area, group_name, group_link, group_id))
     conn.commit()
 
     cursor.close()

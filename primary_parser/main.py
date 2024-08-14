@@ -21,7 +21,7 @@ def main(group_url, n_days, region, area, include_reposts=False):
         logger.info(f"Parsing posts for group {group_url} completed. Collected {len(posts)} posts. Last post date: {last_post_date}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 5:
         print("Usage: docker-compose run primary_parser python main.py <group_url> <n_days> <region> <area>")
         sys.exit(1)
 

@@ -21,7 +21,7 @@ def save_posts_to_db(posts, default_region, default_area):
 
             #Если локации в тексте не найдены
             if not locations:
-                locations = [(default_region, default_area, None)]
+                locations = [(default_region, default_area, '')]
 
             #Сохраняем пост для каждой найденной локации
             for region, area, district in locations:
@@ -60,7 +60,7 @@ def add_group_to_db(group_id, region, area, group_name, group_link, include_repo
     cursor.execute("""
         INSERT INTO vk_groups (group_id, region, area, group_name, group_link, last_post_date, include_reposts)
         VALUES (%s, %s, %s, %s, %s, (SELECT MAX(date) FROM vk_posts WHERE group_id = %s), %s)
-    """, (group_id, region, area, group_name, group_link, group_id))
+    """, (group_id, region, area, group_name, group_link, group_id, group_id))
     conn.commit()
 
     cursor.close()

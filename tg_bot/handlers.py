@@ -77,6 +77,8 @@ async def handle_photo(message: types.Message, state: FSMContext):
 @router.message(Form.area)
 async def handle_area(message: types.Message, state: FSMContext):
     logger.info(f"Area selected by {message.from_user.id}: {message.text}")
+    data = await state.get_data()
+
     if message.text == "Пропустить":
         await state.update_data(area=None)
         await message.answer("Выбран поиск по всему региону. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
@@ -88,7 +90,7 @@ async def handle_area(message: types.Message, state: FSMContext):
     else:
         await state.update_data(area=message.text, unassigned=False)
         # Проверка, если для выбранной области есть районы (districts)
-        districts = get_districts_by_area(state.get_data().get('region'), message.text)
+        districts = get_districts_by_area(data.get('region'), message.text)
         if districts:
             await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                  reply_markup=get_districts_markup(districts))

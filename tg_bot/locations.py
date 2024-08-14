@@ -15,6 +15,7 @@ regions_data = {
 
 
 def get_areas_by_region(region):
+
     """Возвращает список areas для указанного региона."""
     return regions_data.get(region, {}).get("areas", [])
 

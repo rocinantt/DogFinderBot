@@ -20,7 +20,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
 from utils import load_faq, search_similar_posts
-from database import get_user_region, save_user_region, get_groups, get_districts_by_area
+from database import get_user_region, save_user_region, get_groups
 from config import logger
 
 router = Router()

@@ -9,15 +9,15 @@ async def get_posts(region: str, days: int, area: Optional[str] = None, district
     date_threshold = datetime.now() - timedelta(days=days)
 
     query = """
-    SELECT vk_posts.post_link, vk_posts.features, vk_posts.date
+    SELECT post_link, features, date
     FROM vk_posts
-    JOIN vk_groups ON vk_posts.group_id = vk_groups.group_id
-    WHERE vk_groups.region = $1 AND vk_posts.date >= $2
+    WHERE region = $1 AND date >= $2
     """
 
     params = [region, date_threshold]
 
     if unassigned:
+        # Если выбран поиск по нераспределенным постам, учитываем только те, где нет значения area и district
         query += " AND vk_posts.area IS NULL AND vk_posts.district IS NULL"
     else:
         if area:

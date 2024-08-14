@@ -48,8 +48,8 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
 
     logger.info(f"Пользователь {user_id} запрашивает поиск с параметрами: {query_params}")
 
-    async with aiohttp.ClientSession() as session:
-        try:
+    try:
+        async with aiohttp.ClientSession() as session:
             logger.info("Sending request to photo comparator service...")
             async with session.post('http://photo_comparator:5000/compare', json=query_params, timeout=aiohttp.ClientTimeout(total=60)) as response:
                 logger.info(f"Received response with status: {response.status}")
@@ -59,9 +59,10 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
                 else:
                     logger.error(f"Error response from photo_comparator: {response.status}")
                     await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
-        except Exception as e:
-            logger.exception(f"Exception during search_similar_posts: {e}")
-            await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
+    except Exception as e:
+        logger.exception(f"Exception during search_similar_posts: {e}")
+        await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
+
 
 
 

@@ -55,11 +55,12 @@ async def handle_change_region(message: types.Message, state: FSMContext):
     await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup())
     await state.set_state(Form.region)
 
-@router.callback_query(lambda c: c.data.startswith('region_'))
+@router.callback_query(F.data.startswith("region_"))
 async def handle_region(callback_query: CallbackQuery, state: FSMContext):
-    region = callback_query.data.split('_')[1]
+    region = callback_query.data.split("_")[1]
+    logger.info(f"Region selected by {callback_query.from_user.id}: {region}")
     save_user_region(callback_query.from_user.id, region)
-    await callback_query.message.answer(f"Вы выбрали регион {region}. Теперь отправьте фото найденной собаки.", reply_markup=types.ReplyKeyboardRemove())
+    await callback_query.message.edit_text(f"Вы выбрали регион {region}. Теперь отправьте фото найденной собаки.")
     await state.set_state(Form.photo)
 
 @router.message(Form.photo, F.content_type == types.ContentType.PHOTO)

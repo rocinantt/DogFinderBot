@@ -5,34 +5,34 @@ from database import get_regions, get_areas, get_districts
 #from locations import  get_areas_by_region, get_districts_by_area
 
 def get_regions_markup():
-    builder = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup()
     for region in get_regions():
-        builder.add(InlineKeyboardButton(text=region), callback_data=f'region_{region}')
-    return builder
+        markup.add(InlineKeyboardButton(text=region, callback_data=f"region_{region}"))
+    return markup
 
 def get_areas_markup(region):
     """Генерирует клавиатуру с выбором area."""
-    builder = ReplyKeyboardBuilder()
+    markup = InlineKeyboardMarkup()
     for area in get_areas(region):
-        builder.add(KeyboardButton(text=area))
-    builder.add(KeyboardButton(text="Пропустить"))
-    builder.add(KeyboardButton(text="Нераспределенные"))
-    return builder.as_markup(resize_keyboard=True)
+        markup.add(InlineKeyboardButton(text=area, callback_data=f"area_{area}"))
+    markup.add(InlineKeyboardButton(text="Пропустить", callback_data="skip_area"))
+    markup.add(InlineKeyboardButton(text="Нераспределенные", callback_data="unassigned"))
+    return markup
 
 def get_districts_markup(districts):
-    """Генерирует клавиатуру с выбором районов СПБ."""
-    builder = ReplyKeyboardBuilder()
+    """Генерирует клавиатуру с выбором районов."""
+    markup = InlineKeyboardMarkup()
     for district in districts:
-        builder.add(KeyboardButton(text=district))
-    builder.add(KeyboardButton(text="Пропустить"))
-    return builder.as_markup(resize_keyboard=True)
+        markup.add(InlineKeyboardButton(text=district, callback_data=f"district_{district}"))
+    markup.add(InlineKeyboardButton(text="Пропустить", callback_data="skip_district"))
+    return markup
 
 def get_days_markup():
-    builder = ReplyKeyboardBuilder()
+    markup = InlineKeyboardMarkup()
     days_options = [1, 3, 7, 15]
     for days in days_options:
-        builder.add(KeyboardButton(text=str(days)))
-    builder.add(KeyboardButton(text="Ввести свое количество дней"))
-    return builder.as_markup(resize_keyboard=True)
+        markup.add(InlineKeyboardButton(text=str(days), callback_data=f"days_{days}"))
+    markup.add(InlineKeyboardButton(text="Ввести свое количество дней", callback_data="custom_days"))
+    return markup
 
 

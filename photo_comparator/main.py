@@ -36,28 +36,33 @@ model = AutoModelForImageClassification.from_pretrained(model_path)
 model.classifier = torch.nn.Identity()
 
 class ImageRequest(BaseModel):
-    """Request model for image comparison endpoint."""
     image_url: str
     region: str
     days: int
-    city: Optional[str] = None
+    area: Optional[str] = None
+    district: Optional[str] = None
+    unassigned: bool = False
 
-async def find_similar_images(image_url: str, region: str, days: int, city: Optional[str] = None):
+
+async def find_similar_images(image_url: str, region: str, days: int, area: Optional[str] = None,
+                              district: Optional[str] = None, unassigned: bool = False):
     """Find similar images in the database."""
-    
-    # Fetch posts from the database
-    posts = await get_posts(region, days, city)
-    
+
+    # Fetch posts from the database with new parameters
+    posts = await get_posts(region, days, area, district, unassigned)
+
     # Load and process the query image
     query_image_tensor = await load_image(image_url)
     if query_image_tensor is None:
         return []
 
     query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
-    
+
     # Calculate similarity with database images
-    similar_posts = get_top_n_similar_posts(query_features, [(post['post_link'], json.loads(post['features']), post['date']) for post in posts])
-    
+    similar_posts = get_top_n_similar_posts(query_features,
+                                            [(post['post_link'], json.loads(post['features']), post['date']) for post in
+                                             posts])
+
     return [{'post_link': post['post_link'], 'date': post['date']} for post in similar_posts]
 
 @app.post('/compare')

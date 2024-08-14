@@ -60,7 +60,7 @@ def add_group_to_db(group_id, region, area, group_name, group_link, include_repo
     cursor.execute("""
         INSERT INTO vk_groups (group_id, region, area, group_name, group_link, last_post_date, include_reposts)
         VALUES (%s, %s, %s, %s, %s, (SELECT MAX(date) FROM vk_posts WHERE group_id = %s), %s)
-    """, (group_id, region, area, group_name, group_link, group_id, group_id))
+    """, (group_id, region, area, group_name, group_link, group_id, include_reposts))
     conn.commit()
 
     cursor.close()

@@ -5,9 +5,10 @@ from database import get_regions, get_areas, get_districts
 #from locations import  get_areas_by_region, get_districts_by_area
 
 def get_regions_markup():
-    markup = InlineKeyboardMarkup()
-    for region in get_regions():
-        markup.add(InlineKeyboardButton(text=region, callback_data=f"region_{region}"))
+    markup = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=region, callback_data=f"region_{region}")]
+        for region in get_regions()
+    ])
     return markup
 
 def get_areas_markup(region):

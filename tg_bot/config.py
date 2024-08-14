@@ -2,6 +2,7 @@
 import os
 import logging
 from dotenv import load_dotenv
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -10,13 +11,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Проверка загрузки переменных окружения
 if not API_TOKEN:
-    logging.error("TELEGRAM_TOKEN not found in environment variables")
+    logger.error("TELEGRAM_TOKEN not found in environment variables")
 else:
-    logging.info("TELEGRAM_TOKEN loaded successfully.")
+    logger.info("TELEGRAM_TOKEN loaded successfully.")
 
 if not DATABASE_URL:
-    logging.error("DATABASE_URL not found in environment variables")
+    logger.error("DATABASE_URL not found in environment variables")
 else:
-    logging.info("DATABASE_URL loaded successfully")
+    logger.info("DATABASE_URL loaded successfully")
 
 

@@ -10,6 +10,7 @@ from utils import load_faq, search_similar_posts
 from database import get_user_region, save_user_region, get_groups, get_areas, get_regions, get_districts
 from config import logger
 from locations import regions_data, get_districts_by_area, get_areas_by_region
+from aiogram.types import CallbackQuery
 
 router = Router()
 
@@ -54,11 +55,11 @@ async def handle_change_region(message: types.Message, state: FSMContext):
     await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup())
     await state.set_state(Form.region)
 
-@router.message(Form.region)
-async def handle_region(message: types.Message, state: FSMContext):
-    logger.info(f"Region selected by {message.from_user.id}: {message.text}")
-    save_user_region(message.from_user.id, message.text)
-    await message.answer(f"Вы выбрали регион {message.text}. Теперь отправьте фото найденной собаки.", reply_markup=types.ReplyKeyboardRemove())
+@router.callback_query(lambda c: c.data.startswith('region_'))
+async def handle_region(callback_query: CallbackQuery, state: FSMContext):
+    region = callback_query.data.split('_')[1]
+    save_user_region(callback_query.from_user.id, region)
+    await callback_query.message.answer(f"Вы выбрали регион {region}. Теперь отправьте фото найденной собаки.", reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(Form.photo)
 
 @router.message(Form.photo, F.content_type == types.ContentType.PHOTO)

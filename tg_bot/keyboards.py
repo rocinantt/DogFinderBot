@@ -1,14 +1,14 @@
 # keyboards.py
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from database import get_regions, get_areas, get_districts
 #from locations import  get_areas_by_region, get_districts_by_area
 
 def get_regions_markup():
-    builder = ReplyKeyboardBuilder()
+    builder = InlineKeyboardMarkup()
     for region in get_regions():
-        builder.add(KeyboardButton(text=region))
-    return builder.as_markup(resize_keyboard=True)
+        builder.add(InlineKeyboardButton(text=region), callback_data=f'region_{region}')
+    return builder
 
 def get_areas_markup(region):
     """Генерирует клавиатуру с выбором area."""

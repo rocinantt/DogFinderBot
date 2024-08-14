@@ -18,13 +18,13 @@ async def get_posts(region: str, days: int, area: Optional[str] = None, district
 
     if unassigned:
         # Если выбран поиск по нераспределенным постам, учитываем только те, где нет значения area и district
-        query += " AND vk_posts.area IS NULL AND vk_posts.district IS NULL"
+        query += " AND area IS NULL AND district IS NULL"
     else:
         if area:
-            query += " AND vk_groups.area = $3"
+            query += " AND area = $3"
             params.append(area)
         if district:
-            query += " AND vk_groups.district = $4"
+            query += " AND district = $4"
             params.append(district)
 
     posts = await conn.fetch(query, *params)

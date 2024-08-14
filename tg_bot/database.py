@@ -73,7 +73,7 @@ def get_districts(area):
     """Fetches all unique regions from the vk_groups table."""
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT district FROM vk_posts WHERE area = %s", (area,))
+            cursor.execute("SELECT DISTINCT district FROM vk_posts WHERE area = %s::text", (area,))
             districts = cursor.fetchall()
             return [district[0] for district in districts]
     except psycopg2.Error as e:

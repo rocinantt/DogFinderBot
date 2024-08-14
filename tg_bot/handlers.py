@@ -46,8 +46,11 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(handle_area, F.data.startswith("area_"))
     dp.callback_query.register(handle_district, F.data.startswith("district_"))
     dp.callback_query.register(handle_days, F.data.startswith("days_"))
+    dp.callback_query.register(handle_unassigned, F.data == "unassigned")  # Добавлен новый обработчик
     dp.callback_query.register(skip_area, F.data == "skip_area")
+    dp.callback_query.register(skip_district, F.data == "skip_district")  # Добавлен новый обработчик
     dp.callback_query.register(custom_days, F.data == "custom_days")
+
 
 
 @router.message(Command(commands=['start']))
@@ -170,6 +173,21 @@ async def handle_get_groups(message: types.Message, state: FSMContext):
         await message.answer(response, reply_markup=types.ReplyKeyboardRemove())
     else:
         await message.answer("Сначала выберите регион с помощью команды /change_region.")
+
+@router.callback_query(F.data == "unassigned")
+async def handle_unassigned(callback_query: CallbackQuery, state: FSMContext):
+    logger.info(f"Unassigned selected by {callback_query.from_user.id}")
+    await state.update_data(area=None, district=None, unassigned=True)
+    await callback_query.message.edit_text("Выбраны 'Нераспределенные' посты. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await state.set_state(Form.days)
+
+@router.callback_query(F.data == "skip_district")
+async def skip_district(callback_query: CallbackQuery, state: FSMContext):
+    logger.info(f"District skipped by {callback_query.from_user.id}")
+    await state.update_data(district=None)
+    await callback_query.message.edit_text("Вы пропустили выбор района. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await state.set_state(Form.days)
+
 
 
 @router.message(Command(commands=['end']))

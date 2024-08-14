@@ -50,7 +50,7 @@ async def find_similar_images(image_url: str, region: str, days: int, area: Opti
 
     # Fetch posts from the database with new parameters
     posts = await get_posts(region, days, area, district, unassigned)
-
+    logger.info(f'По заданным параметрам собарно {len(posts)} постов')
     # Load and process the query image
     query_image_tensor = await load_image(image_url)
     if query_image_tensor is None:

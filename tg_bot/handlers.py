@@ -32,7 +32,8 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(handle_area, Form.area)
     dp.message.register(handle_district, Form.district)
     dp.message.register(handle_days, Form.days)
-
+    # Регистрация обработчиков для inline-кнопок
+    dp.callback_query.register(handle_region, F.data.startswith("region_"))
 @router.message(Command(commands=['start']))
 async def send_welcome(message: types.Message, state: FSMContext):
     await state.clear()
@@ -62,6 +63,8 @@ async def handle_region(callback_query: CallbackQuery, state: FSMContext):
     save_user_region(callback_query.from_user.id, region)
     await callback_query.message.edit_text(f"Вы выбрали регион {region}. Теперь отправьте фото найденной собаки.")
     await state.set_state(Form.photo)
+    logger.info(f"State set to: {await state.get_state()}")
+
 
 @router.message(Form.photo, F.content_type == types.ContentType.PHOTO)
 async def handle_photo(message: types.Message, state: FSMContext):

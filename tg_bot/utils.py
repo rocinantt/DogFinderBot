@@ -20,6 +20,7 @@ def load_faq():
 
 # Search for similar posts
 # Search for similar posts
+# Search for similar posts
 async def search_similar_posts(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     data = await state.get_data()
@@ -28,7 +29,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     days = data['days']
     area = data.get('area')
     district = data.get('district')
-    unassigned = data.get('unassigned', False)  # Новый параметр
+    unassigned = data.get('unassigned', False)
 
     query_params = {
         'image_url': f"https://api.telegram.org/file/bot{API_TOKEN}/{await Bot(token=API_TOKEN).get_file(photo_file_id).file_path}",
@@ -47,7 +48,9 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
 
     async with aiohttp.ClientSession() as session:
         try:
+            logger.info("Sending request to photo comparator service...")
             async with session.post('http://photo_comparator:5000/compare', json=query_params, timeout=aiohttp.ClientTimeout(total=60)) as response:
+                logger.info(f"Received response with status: {response.status}")
                 if response.status == 200:
                     results = await response.json()
                     await send_results(message, results)
@@ -57,6 +60,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         except Exception as e:
             logger.exception(f"Exception during search_similar_posts: {e}")
             await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
+
 
 
 # Send results to the user

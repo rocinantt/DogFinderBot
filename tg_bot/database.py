@@ -4,9 +4,13 @@ from psycopg2.extras import DictCursor
 from config import DATABASE_URL, logger
 from locations import regions_data
 
+# Логгирование перед подключением
+logger.info("Attempting to connect to the database...")
+
 # Establish a database connection
 try:
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
+    logger.info("Successfully connected to the database.")
 except psycopg2.Error as e:
     logger.error(f"Error connecting to the database: {e}")
     raise

@@ -90,8 +90,8 @@ async def handle_area(message: types.Message, state: FSMContext):
     else:
         await state.update_data(area=message.text, unassigned=False)
         # Проверка, если для выбранной области есть районы (districts)
-        region = data['region']
-        districts = get_districts_by_area(region, message.text)
+
+        districts = get_districts_by_area(data.get('region'), message.text)
         if districts:
             await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                  reply_markup=get_districts_markup(districts))

@@ -67,8 +67,14 @@ async def find_similar_images(image_url: str, region: str, days: int, area: Opti
 
 @app.post('/compare')
 async def compare(request: ImageRequest):
-    """Endpoint for comparing images."""
-    results = await find_similar_images(request.image_url, request.region, request.days, request.city)
+    results = await find_similar_images(
+        image_url=request.image_url,
+        region=request.region,
+        days=request.days,
+        area=request.area,
+        district=request.district,
+        unassigned=request.unassigned
+    )
     return results
 
 if __name__ == "__main__":

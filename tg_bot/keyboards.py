@@ -2,7 +2,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from database import get_regions
-from locations import  get_areas_by_region, get_districts_by_region
+from locations import  get_areas_by_region, get_districts_by_area
 
 def get_regions_markup(regions_data):
     builder = ReplyKeyboardBuilder()
@@ -23,7 +23,7 @@ def get_areas_markup(region):
 def get_districts_markup(region):
     """Генерирует клавиатуру с выбором районов СПБ."""
     builder = ReplyKeyboardBuilder()
-    districts = get_districts_by_region(region)
+    districts = get_districts_by_area(region)
     for district in districts:
         builder.add(KeyboardButton(text=district))
     builder.add(KeyboardButton(text="Пропустить"))

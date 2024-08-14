@@ -12,16 +12,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not API_TOKEN:
     logging.error("TELEGRAM_TOKEN not found in environment variables")
 else:
-    logging.info(f"TELEGRAM_TOKEN loaded successfully.")
+    logging.info("TELEGRAM_TOKEN loaded successfully.")
 
 if not DATABASE_URL:
     logging.error("DATABASE_URL not found in environment variables")
 else:
-    logging.info(f"DATABASE_URL loaded successfully: {DATABASE_URL}")
+    logging.info("DATABASE_URL loaded successfully")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s - %(message)s',
-)
-logger = logging.getLogger(__name__)
+

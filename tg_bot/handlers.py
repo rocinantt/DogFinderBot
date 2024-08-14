@@ -91,7 +91,7 @@ async def handle_area(message: types.Message, state: FSMContext):
         districts = get_districts_by_area(state.get_data().get('region'), message.text)
         if districts:
             await message.answer("Вы можете сузить область поиска или нажать 'Пропустить'.",
-                                 reply_markup=get_districts_markup(message.text))
+                                 reply_markup=get_districts_markup(districts))
             await state.set_state(Form.district)
         else:
             await message.answer(
@@ -106,7 +106,7 @@ async def handle_district(message: types.Message, state: FSMContext):
         await state.update_data(district=None)
     else:
         await state.update_data(district=message.text)
-    await message.answer("Фото получено. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await message.answer(f"Вы выбрали {message.text} За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
     await state.set_state(Form.days)
 
 @router.message(Form.days)

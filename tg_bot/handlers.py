@@ -1,3 +1,16 @@
+#handlers.py
+import logging
+from aiogram import types, F, Dispatcher, Router
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.filters import Command
+from aiogram.enums import ParseMode
+from keyboards import get_regions_markup,  get_days_markup, get_areas_markup, get_districts_markup
+from utils import load_faq, search_similar_posts
+from database import get_user_region, save_user_region, get_groups, get_areas, get_regions, get_districts
+from config import logger
+from locations import regions_data, get_districts_by_area, get_areas_by_region
+from aiogram.types import CallbackQuery
 import logging
 from aiogram import types, F, Dispatcher, Router
 from aiogram.fsm.context import FSMContext

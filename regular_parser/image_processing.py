@@ -3,11 +3,11 @@ import os
 import requests
 from PIL import Image
 import torch
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import ViTImageProcessor, ViTForImageClassification
 
 model_path = '/app/models'
-processor = AutoImageProcessor.from_pretrained(model_path)
-model = AutoModelForImageClassification.from_pretrained(model_path)
+processor = ViTImageProcessor.from_pretrained(model_path)
+model = ViTForImageClassification.from_pretrained(model_path)
 
 # Configure model to use only feature extractor
 model.classifier = torch.nn.Identity()

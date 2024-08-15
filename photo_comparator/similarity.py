@@ -4,24 +4,29 @@ import heapq
 
 
 def calculate_similarity(query_features, post_features):
-    """Calculate the cosine similarity between query features and post features."""
-    post_features = np.array(post_features)
-    # Вычисление сходства сразу для всех постов, а не построчно
-    similarities = cosine_similarity([query_features], post_features)[0]
-    return similarities
+    """Calculate the maximum cosine similarity between query features and post features."""
+    # Рассматриваем каждый feature-вектор поста отдельно
+    similarities = cosine_similarity([query_features], post_features)
+    max_similarity = np.max(similarities)
+    return max_similarity
 
 
 def get_top_n_similar_posts(query_features, posts, n=5):
     """Get the top N similar posts based on similarity scores."""
-    post_features = [post[1] for post in posts]  # Извлекаем признаки постов
-    similarities = calculate_similarity(query_features, post_features)
+    similarities = []
 
-    # Создаем список кортежей (сходство, ссылка на пост, дата поста)
+    for post in posts:
+        post_features = np.array(post[1])
+        # Рассчитываем максимальную схожесть для поста (в случае, если есть несколько фотографий)
+        max_similarity = calculate_similarity(query_features, post_features)
+        similarities.append(max_similarity)
+
+    # Создаем список кортежей (similarity, post_link, post_date)
     posts_with_similarity = [(similarity, post[0], post[2]) for post, similarity in zip(posts, similarities)]
 
-    # Используем heapq для получения топ-N постов с наивысшим сходством
+    # Используем heapq для получения N постов с самой высокой схожестью
     similar_posts = heapq.nlargest(n, posts_with_similarity, key=lambda x: x[0])
 
-    # Возвращаем топ-N постов с схожестью, ссылкой на пост и датой
+    # Возвращаем список N наиболее похожих постов
     return [{'post_link': post_link, 'similarity': similarity, 'date': post_date.strftime('%d-%m-%Y')}
             for similarity, post_link, post_date in similar_posts]

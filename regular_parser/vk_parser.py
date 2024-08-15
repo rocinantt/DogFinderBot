@@ -47,7 +47,8 @@ def format_post_data(post, group_id):
         "date": datetime.utcfromtimestamp(post['date']).strftime('%Y-%m-%d %H:%M:%S'),
         "photos": photos,
         "post_link": f"https://vk.com/wall{post['owner_id']}_{post['id']}",
-        "group_id": group_id
+        "group_id": group_id,
+        "text": post['text']
     }
     return post_data
 
@@ -55,7 +56,6 @@ def parse_new_posts(group_id, last_post_date, include_reposts=False):
     """Parse new posts for a group since the last post date."""
     new_posts = []
     offset = 0
-    n_days_ago = datetime.now() - timedelta(days=30)
 
     with tqdm(desc=f"Parsing new posts for group {group_id}", unit="posts") as pbar:
         while True:
@@ -88,7 +88,7 @@ def parse_new_posts(group_id, last_post_date, include_reposts=False):
                 if post_data:
                     new_posts.append(post_data)
 
-            offset += 100
+            #offset += 100
             pbar.update(100)
 
     post_cache = {}

@@ -1,3 +1,4 @@
+#main.py
 import sys
 from config import logger
 from vk_parser import parse_all_posts, get_group_info

@@ -5,11 +5,13 @@ from psycopg2 import pool
 from config import DATABASE_URL, logger
 from image_processing import process_post
 from tqdm import tqdm
+from utils import find_all_locations
 
-# Connection pool for database connections
+
 conn_pool = pool.SimpleConnectionPool(1, 10, dsn=DATABASE_URL)
 
-def save_posts_to_db(posts):
+
+def save_posts_to_db(posts, default_region, default_area):
     """Save posts to the database."""
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -17,10 +19,20 @@ def save_posts_to_db(posts):
     try:
         for post in tqdm(posts, desc='Processing posts', total=len(posts)):
             features = process_post(post)
-            cursor.execute("""
-                INSERT INTO vk_posts (post_id, group_id, date, post_link, features)
-                VALUES (%s, %s, %s, %s, %s)
-                """, (post['post_id'], post['group_id'], post['date'], post['post_link'], Json(features)))
+
+            # Extract locations from post text
+            text = post.get('text', '')
+            locations = find_all_locations(text)
+
+            if not locations:
+                locations = [(default_region, default_area, '')]
+
+            for region, area, district in locations:
+                cursor.execute("""
+                    INSERT INTO vk_posts (post_id, group_id, date, post_link, features, region, area, district)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (post['post_id'], post['group_id'], post['date'], post['post_link'],
+                          Json(features), region, area, district))
         conn.commit()
         logger.info(f"Added {len(posts)} posts to the database for group {posts[0]['group_id']}")
     except Exception as e:

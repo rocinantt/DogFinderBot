@@ -1,3 +1,4 @@
+#vk_parser.py
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import vk_api

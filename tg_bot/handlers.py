@@ -96,7 +96,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await state.update_data(region=user_region)
-        await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\n Нерапсределенные - среди постов без указания адреса.",
+        await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\nНерасgределенные - среди постов без указания адреса.",
                              reply_markup=get_areas_markup(user_region))
         await state.set_state(Form.area)
     else:

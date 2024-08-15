@@ -1,3 +1,4 @@
+#image_processing.py
 import os
 import requests
 from PIL import Image

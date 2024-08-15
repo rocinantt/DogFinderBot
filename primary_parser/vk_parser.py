@@ -25,15 +25,33 @@ def get_group_info(group_id):
         return None, None
 
 def extract_photos_from_post(post):
-    """Extract photo URLs from a VK post."""
+    """Extract photo URLs from a post."""
     photos = []
     if 'attachments' in post:
         for attachment in post['attachments']:
             if attachment['type'] == 'photo':
                 photo_sizes = attachment['photo']['sizes']
-                max_size_photo = max(photo_sizes, key=lambda size: size['width'])
-                if max_size_photo['url'] not in photos:
-                    photos.append(max_size_photo['url'])
+
+                # Попытка найти нужные типы в приоритетном порядке
+                preferred_types = ['r', 'x', 'y']
+                selected_photo = None
+
+                for p_type in preferred_types:
+                    for size in photo_sizes:
+                        if size['type'] == p_type:
+                            selected_photo = size['url']
+                            break
+                    if selected_photo:
+                        break
+
+                # Если выбранный тип найден, добавляем его в список
+                if selected_photo and selected_photo not in photos:
+                    photos.append(selected_photo)
+                # Если ни один из предпочтительных типов не найден, выбираем максимальный размер
+                elif not selected_photo:
+                    max_size_photo = max(photo_sizes, key=lambda size: size['width'])
+                    if max_size_photo['url'] not in photos:
+                        photos.append(max_size_photo['url'])
     return photos if photos else None
 
 def format_post_data(post, group_id):

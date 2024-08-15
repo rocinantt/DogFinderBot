@@ -12,12 +12,15 @@ def get_regions_markup():
 def get_areas_markup(region):
     """Генерирует клавиатуру с выбором area."""
     builder = InlineKeyboardBuilder()
-    for area in get_areas(region):
-        builder.button(text=area, callback_data=f"area_{area}")
-        builder.adjust(2)
+    areas = get_areas(region)
+
+    for area, count in areas:
+        button_text = f"{area} ({count})"
+        builder.button(text=button_text, callback_data=f"area_{area}")
+    builder.adjust(2)
     builder.button(text="Пропустить", callback_data="skip_area")
     builder.button(text="Нераспределенные", callback_data="unassigned")
-    #builder.adjust(2)
+    builder.adjust(2)
 
     return builder.as_markup()
 

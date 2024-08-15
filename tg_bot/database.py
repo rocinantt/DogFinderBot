@@ -60,9 +60,14 @@ def get_areas(region):
     """Fetches all unique regions from the vk_groups table."""
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT area FROM vk_posts WHERE region = %s", (region,))
+            cursor.execute("""
+                SELECT area, COUNT(date)
+                FROM vk_posts
+                WHERE region = %s
+                GROUP BY area
+                ORDER BY count DESC""", (region,))
             areas = cursor.fetchall()
-            return [area[0] for area in areas]
+            return areas
     except psycopg2.Error as e:
         conn.rollback()
         logger.error(f"Error fetching areas: {e}")

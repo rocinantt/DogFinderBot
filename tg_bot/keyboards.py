@@ -27,9 +27,11 @@ def get_areas_markup(region):
 def get_districts_markup(districts):
     """Генерирует клавиатуру с выбором районов."""
     builder = InlineKeyboardBuilder()
-    for district in districts:
-        builder.button(text=district, callback_data=f"district_{district}")
-        builder.adjust(2)
+
+    for district, count in districts:
+        button_text = f"{district} ({count})"
+        builder.button(text=button_text, callback_data=f"district_{district}")
+    builder.adjust(2)
     builder.button(text="Пропустить", callback_data="skip_district")
     builder.adjust(2)
 

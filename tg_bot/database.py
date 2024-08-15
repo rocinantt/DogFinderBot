@@ -63,9 +63,10 @@ def get_areas(region):
             cursor.execute("""
                 SELECT area, COUNT(date)
                 FROM vk_posts
-                WHERE region = %s
+                WHERE region = %s AND area != ''
                 GROUP BY area
-                ORDER BY count DESC""", (region,))
+                ORDER BY count DESC
+                """, (region,))
             areas = cursor.fetchall()
             return areas
     except psycopg2.Error as e:
@@ -78,7 +79,13 @@ def get_districts(area):
     """Fetches all unique regions from the vk_groups table."""
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT district FROM vk_posts WHERE area = %s::text", (area,))
+            cursor.execute("""
+                SELECT district, COUNT(date)
+                FROM vk_posts
+                WHERE area = %s AND district != ''
+                GROUP BY district
+                ORDER BY count DESC
+                """, (area,))
             districts = cursor.fetchall()
             return [district[0] for district in districts]
     except psycopg2.Error as e:

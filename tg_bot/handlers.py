@@ -20,7 +20,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
 from utils import load_faq, search_similar_posts
-from database import get_user_region, save_user_region, get_groups
+from database import get_user_region, save_user_region, get_groups, get_districts
 from config import logger
 
 router = Router()
@@ -112,7 +112,7 @@ async def handle_area(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     await state.update_data(area=area, unassigned=False)
-    districts = get_districts_by_area(data.get('region'), area)
+    districts = get_districts(area)
     if districts:
         await callback_query.message.edit_text("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                                reply_markup=get_districts_markup(districts))

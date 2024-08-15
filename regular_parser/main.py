@@ -33,7 +33,7 @@ def check_new_posts_for_all_groups():
     conn = conn_pool.getconn()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT group_id, last_post_date, region, area FROM vk_groups")
+    cursor.execute("SELECT group_id, last_post_date, region, area, include_reposts FROM vk_groups")
     groups = cursor.fetchall()
 
     with ThreadPoolExecutor(max_workers=5) as executor:

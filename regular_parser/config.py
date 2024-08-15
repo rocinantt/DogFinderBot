@@ -15,9 +15,5 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 vk_session = vk_api.VkApi(token=TOKEN)
 vk = vk_session.get_api()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

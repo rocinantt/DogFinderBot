@@ -3,21 +3,17 @@ import json
 import logging
 from datetime import datetime, timedelta
 from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, List
 
-import torch
 import asyncpg
 import aiohttp
 import numpy as np
-from PIL import Image
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from concurrent.futures import ThreadPoolExecutor
-from typing import Optional, List
-from transformers import AutoImageProcessor, AutoModelForImageClassification
-from sklearn.metrics.pairwise import cosine_similarity
 
 from config import DATABASE_URL
-from model import load_image, extract_features
+from model import load_image, extract_features, processor, model  # Импортируем processor и model из model.py
 from posts import get_posts
 from similarity import calculate_similarity, get_top_n_similar_posts
 
@@ -29,12 +25,6 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=4)
 
-# Initialize model and processor
-model_path = '/app/models'
-processor = AutoImageProcessor.from_pretrained(model_path)
-model = AutoModelForImageClassification.from_pretrained(model_path)
-model.classifier = torch.nn.Identity()
-
 class ImageRequest(BaseModel):
     image_url: str
     region: str
@@ -43,21 +33,17 @@ class ImageRequest(BaseModel):
     district: Optional[str] = None
     unassigned: bool = False
 
-
 async def find_similar_images(image_url: str, region: str, days: int, area: Optional[str] = None,
                               district: Optional[str] = None, unassigned: bool = False):
     """Find similar images in the database."""
 
-    # Fetch posts from the database with new parameters
     posts = await get_posts(region, days, area, district, unassigned)
-    # Load and process the query image
     query_image_tensor = await load_image(image_url)
     if query_image_tensor is None:
         return []
 
     query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
 
-    # Calculate similarity with database images
     similar_posts = get_top_n_similar_posts(query_features,
                                             [(post['post_link'], json.loads(post['features']), post['date']) for post in
                                              posts])

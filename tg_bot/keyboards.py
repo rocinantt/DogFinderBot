@@ -1,3 +1,5 @@
+#keyboards.py
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from database import get_regions, get_areas, get_districts

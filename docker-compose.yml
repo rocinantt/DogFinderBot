@@ -1,4 +1,5 @@
 version: '3.8'
+
 x-def-logging: &default-logging
   logging:
     driver: "loki"
@@ -12,7 +13,6 @@ x-def-logging: &default-logging
 services:
 
   loki:
-    hostname: loki
     image: grafana/loki:latest
     ports:
       - "3100:3100"
@@ -39,9 +39,7 @@ services:
     volumes:
       - ./promtail-config.yml:/etc/promtail/promtail-config.yaml
 
-
   db:
-
     container_name: containers_db_1
     image: postgres:latest
     environment:
@@ -55,7 +53,6 @@ services:
       - db-data:/var/lib/postgresql/data
     <<: *default-logging
 
-
   primary_parser:
     build: ./primary_parser
     depends_on:
@@ -65,7 +62,6 @@ services:
       - ./models:/app/models
     <<: *default-logging
 
-
   regular_parser:
     build: ./regular_parser
     depends_on:
@@ -74,7 +70,6 @@ services:
       - ./regular_parser:/app
       - ./models:/app/models
     <<: *default-logging
-
 
   tg_bot:
     build: ./tg_bot
@@ -94,7 +89,6 @@ services:
     ports:
       - '5000:5000'
     <<: *default-logging
-
 
 networks:
   default:

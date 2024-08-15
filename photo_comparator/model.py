@@ -4,7 +4,7 @@ import aiohttp
 import logging
 from PIL import Image
 from io import BytesIO
-from transformers import AutoImageProcessor, AutoModelForImageClassification
+from transformers import ViTImageProcessor, ViTForImageClassification
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

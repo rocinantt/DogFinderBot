@@ -55,7 +55,8 @@ def find_all_locations(text):
     # Формирование регулярных выражений
     pattern_spb = re.compile(r'\b(' + '|'.join(re.escape(key) for key in spb_district_dict.keys()) + r')\b',
                              re.IGNORECASE)
-    pattern_lo = re.compile(r'\b(' + '|'.join(re.escape(key) for key in lo_dict.keys()) + r')\b', re.IGNORECASE)
+    pattern_lo = re.compile(r'\b(' + '|'.join(re.escape(key) for key in lo_dict.keys()) + r')\b',
+                            re.IGNORECASE)
 
     # Проверка типа данных и извлечение текста из списка, если нужно
     if isinstance(text, list):

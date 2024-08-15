@@ -42,6 +42,7 @@ def save_posts_to_db(posts, default_region, default_area):
         cursor.close()
         conn_pool.putconn(conn)
 
+
 def update_last_post_date(group_id):
     """Update the last post date for the group."""
     conn = conn_pool.getconn()
@@ -68,6 +69,7 @@ def update_last_post_date(group_id):
         cursor.close()
         conn_pool.putconn(conn)
 
+
 def delete_old_posts(group_id, num_posts_to_delete):
     """Delete old posts from the database."""
     conn = conn_pool.getconn()
@@ -92,6 +94,7 @@ def delete_old_posts(group_id, num_posts_to_delete):
         cursor.close()
         conn_pool.putconn(conn)
 
+
 def check_group_exists(group_id):
     """Check if a group exists in the database."""
     conn = conn_pool.getconn()
@@ -104,6 +107,7 @@ def check_group_exists(group_id):
     conn_pool.putconn(conn)
 
     return exists
+
 
 def add_group_to_db(group_id, region, city, group_name, group_link):
     """Add a new group to the database."""

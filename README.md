@@ -51,7 +51,7 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 - **Модули [логирования](https://github.com/rocinantt/DogFinderBot/tree/main/loki), [сбора](https://github.com/rocinantt/DogFinderBot/tree/main/promtail) и [мониторинга](https://github.com/rocinantt/DogFinderBot/tree/main/grafana):**<br/>
   📊📋 Для обеспечения централизованного сбора логов и их визуализации используется связка Promtail, Loki и Grafana, предоставляющая удобные средства для мониторинга и анализа работы всех модулей проекта.
 
-- **[Модель](https://github.com/rocinantt/DogFinderBot/blob/main/vit-dog-breed.ipynb), используемая в проекте для извлечения эмбеддингов из фотографий.
+- **CV модель, [обученная](https://github.com/rocinantt/DogFinderBot/blob/main/vit-dog-breed.ipynb) и  используемая в проекте для извлечения эмбеддингов из фотографий.**<br/>
   💻📈 Для этой цели была выбрана модель vit-large-patch32-384 от google и дообучена на The Stanford Dogs dataset с accuracy на валидации - 0.914.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -100,13 +100,7 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 
 
 
-!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
+<-- LICENSE -->
 
 <!-- CONTACT -->
 ## Contact

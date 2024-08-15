@@ -96,7 +96,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await state.update_data(region=user_region)
-        await message.answer("Фото получено, выберите район поиска или нажмите 'Нераспределенные' или 'Пропустить'.",
+        await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\n Нерапсределенные - среди постов без указания адреса.",
                              reply_markup=get_areas_markup(user_region))
         await state.set_state(Form.area)
     else:
@@ -178,7 +178,7 @@ async def handle_get_groups(message: types.Message, state: FSMContext):
 async def handle_unassigned(callback_query: CallbackQuery, state: FSMContext):
     logger.info(f"Unassigned selected by {callback_query.from_user.id}")
     await state.update_data(area=None, district=None, unassigned=True)
-    await callback_query.message.edit_text("Выбраны 'Нераспределенные' посты. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await callback_query.message.edit_text("Выбраны нераспределенные посты. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
     await state.set_state(Form.days)
 
 @router.callback_query(F.data == "skip_district")

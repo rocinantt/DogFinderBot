@@ -17,7 +17,7 @@ def get_areas_markup(region):
         builder.adjust(2)
     builder.button(text="Пропустить", callback_data="skip_area")
     builder.button(text="Нераспределенные", callback_data="unassigned")
-    builder.adjust(2)
+    #builder.adjust(2)
 
     return builder.as_markup()
 

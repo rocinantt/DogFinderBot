@@ -14,10 +14,10 @@ def get_areas_markup(region):
     builder = InlineKeyboardBuilder()
     for area in get_areas(region):
         builder.button(text=area, callback_data=f"area_{area}")
-        builder.adjust(3)
+        builder.adjust(2)
     builder.button(text="Пропустить", callback_data="skip_area")
     builder.button(text="Нераспределенные", callback_data="unassigned")
-    builder.adjust(3)
+    builder.adjust(2)
 
     return builder.as_markup()
 
@@ -26,8 +26,9 @@ def get_districts_markup(districts):
     builder = InlineKeyboardBuilder()
     for district in districts:
         builder.button(text=district, callback_data=f"district_{district}")
-        builder.adjust(3)
+        builder.adjust(2)
     builder.button(text="Пропустить", callback_data="skip_district")
+    builder.adjust(2)
 
     return builder.as_markup()
 
@@ -37,5 +38,5 @@ def get_days_markup():
     for days in days_options:
         builder.button(text=str(days), callback_data=f"days_{days}")
     builder.button(text="Ввести свое количество дней", callback_data="custom_days")
-    builder.adjust(2)
+    builder.adjust(1)
     return builder.as_markup()

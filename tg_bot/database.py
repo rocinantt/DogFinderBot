@@ -87,7 +87,7 @@ def get_districts(area):
                 ORDER BY count DESC
                 """, (area,))
             districts = cursor.fetchall()
-            return [district[0] for district in districts]
+            return districts
     except psycopg2.Error as e:
         conn.rollback()
         logger.error(f"Error fetching districts: {e}")

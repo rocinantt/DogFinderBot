@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import vk_api
 from config import vk, logger
-
+from utils import filter_other_animal
 def get_posts(group_id, count=100, offset=0):
     """Retrieve posts from a VK group."""
     try:
@@ -84,6 +84,9 @@ def parse_all_posts(group_id, n_days=100, include_reposts=False):
                     else:
                         continue
 
+                # Проверка текста поста на наличие исключенных слов
+                if filter_other_animal(post.get('text', '')):
+                    continue
 
                 post_data = format_post_data(post, group_id)
                 if post_data:

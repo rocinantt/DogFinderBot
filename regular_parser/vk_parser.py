@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import vk_api
 from config import vk, logger
+from utils import filter_other_animal
 
 def get_posts(group_id, count=100, offset=0):
     """Get posts from a VK group."""
@@ -83,6 +84,10 @@ def parse_new_posts(group_id, last_post_date, include_reposts=False):
                     else:
                         continue
 
+                # Проверка текста поста на наличие исключенных слов
+                if filter_other_animal(post.get('text', '')):
+                    continue
+
 
 
                 post_data = format_post_data(post, group_id)
@@ -94,7 +99,7 @@ def parse_new_posts(group_id, last_post_date, include_reposts=False):
 
     post_cache = {}
 
-    for post in all_posts:
+    for post in new_posts:
         photo_links = tuple(post['photos'])
         if photo_links not in post_cache or post_cache[photo_links]['date'] < post['date']:
             post_cache[photo_links] = post 

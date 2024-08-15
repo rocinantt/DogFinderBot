@@ -89,3 +89,8 @@ def find_all_locations(text):
     return locations
 
 
+def filter_other_animal(text):
+
+    excluded_words = r"\b(кот|кота|кошка|кошку|котенок|попугай)\b"
+    pattern = re.compile(excluded_words, re.IGNORECASE)
+    return bool(pattern.search(text))

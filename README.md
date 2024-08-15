@@ -100,7 +100,7 @@ Dog Finder Bot — это Telegram-бот, разработанный для о�
 
 
 
-<-- LICENSE -->
+
 
 <!-- CONTACT -->
 ## Contact

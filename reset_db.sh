@@ -43,7 +43,6 @@ docker exec -i containers_db_1 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-EOS
     CREATE INDEX idx_vk_groups_group_id ON vk_groups(group_id);
     CREATE INDEX idx_vk_groups_region ON vk_groups(region);
     CREATE INDEX idx_vk_groups_area ON vk_groups(area);
-    CREATE INDEX idx_vk_groups_city ON vk_groups(city);
     CREATE INDEX idx_vk_groups_group_name ON vk_groups(group_name);
     CREATE INDEX idx_vk_groups_group_link ON vk_groups(group_link);
     CREATE INDEX idx_vk_groups_include_reposts ON vk_groups(include_reposts);

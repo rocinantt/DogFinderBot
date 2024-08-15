@@ -72,6 +72,7 @@ def parse_new_posts(group_id, last_post_date, include_reposts=False):
 
                 if post_date <= last_post_date:
                     logger.info(f"Stopping post collection for group {group_id} as post date is before or equal to last post date")
+                    logger.info(f"Post date: {post_date}, Last post date: {last_post_date}")
                     return new_posts
 
                 if 'copy_history' in post:

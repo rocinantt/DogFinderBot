@@ -58,7 +58,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
                     results = await response.json()
                     await state.update_data(results=results)
                     logger.info(f"len results {len(results)}")
-                    await send_results(message, results[:5])
+                    await send_results(message, results[:5], 0)
 
                 else:
                     logger.error(f"Error response from photo_comparator: {response.status}")
@@ -73,12 +73,12 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
 
 
 # Send results to the user
-async def send_results(message: types.Message, results):
+async def send_results(message: types.Message, results, offset):
     if not results:
         await message.answer("Не найдено объявлений по заданным критериям.")
         return
 
-    for index, result in enumerate(results, 1):
+    for index, result in enumerate(results, offset + 1):
         text = f"""
         <b>#{index}  {result['date']}</b>
 {result['post_link']}
@@ -86,7 +86,7 @@ async def send_results(message: types.Message, results):
         await message.answer(text, parse_mode=ParseMode.HTML)
 
     if len(results) == 5:
-        await message.answer("Нажмите кнопку ниже для получения следующих результатов.",
+        await message.answer("Вы можете загрузить следующие 5 постов.",
                              reply_markup=get_more_results_markup())
 
 

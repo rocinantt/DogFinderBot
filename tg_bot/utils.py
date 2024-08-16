@@ -7,6 +7,7 @@ from aiogram.enums import ParseMode
 from config import API_TOKEN
 from aiogram import Bot
 from config import logger
+from keyboards import get_more_results_markup
 
 # Load FAQ file
 def load_faq():
@@ -81,4 +82,9 @@ async def send_results(message: types.Message, results):
 {result['post_link']}
         """
         await message.answer(text, parse_mode=ParseMode.HTML)
+
+    if len(results) == 5:
+        await message.answer("Нажмите кнопку ниже для получения следующих результатов.",
+                             reply_markup=get_more_results_markup())
+
 

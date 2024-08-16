@@ -7,7 +7,7 @@ from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
-from utils import load_faq, search_similar_posts
+from utils import load_faq, search_similar_posts, send_results
 from database import get_user_region, save_user_region, get_groups, get_districts
 from config import logger
 
@@ -176,6 +176,18 @@ async def skip_district(callback_query: CallbackQuery, state: FSMContext):
     await callback_query.message.edit_text("Вы пропустили выбор района. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
     await state.set_state(Form.days)
 
+
+@router.callback_query(F.data == "more_results")
+async def handle_more_results(callback_query: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    results = data.get('results', [])
+    offset = data.get('offset', 6)  # По умолчанию начинаем с 5-го результата
+
+    if offset < len(results):
+        await send_results(callback_query.message, results[offset:offset+5])
+        await state.update_data(offset=offset+5)  # Обновляем смещение
+    else:
+        await callback_query.message.answer("Больше результатов нет.")
 
 
 @router.message(Command(commands=['end']))

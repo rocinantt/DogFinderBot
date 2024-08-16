@@ -179,17 +179,17 @@ async def skip_district(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "more_results")
 async def handle_more_results(callback_query: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()  # Получаем все данные из состояния
+    results = data.get('results', [])  # Извлекаем результаты
+    offset = data.get('offset', 5)  # Извлекаем текущее смещение, по умолчанию 5
 
-    results = await state.get_data('results')
-    logger.info(f"len results {len(results)}")
-    offset = await state.get_data('offset')
+    logger.info(f"len results: {len(results)}, current offset: {offset}")
 
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5])
         await state.update_data(offset=offset+5)  # Обновляем смещение
     else:
         await callback_query.message.answer("Больше результатов нет.")
-
 
 @router.message(Command(commands=['end']))
 async def handle_end(message: types.Message, state: FSMContext):

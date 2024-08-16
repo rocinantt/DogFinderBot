@@ -91,7 +91,7 @@ async def send_results(message: types.Message, results, offset):
                              reply_markup=get_more_results_markup())
 
 
-async def clear_state(bot: bot, chat_id: int, user_id: int, timeout: int = 600):
+async def clear_state(bot: Bot, chat_id: int, user_id: int, timeout: int = 600):
     """Очистить состояние пользователя через определенное время (по умолчанию 10 минут)."""
     await asyncio.sleep(timeout)
     state = bot.get('dispatcher').current_state(chat=chat_id, user=user_id)

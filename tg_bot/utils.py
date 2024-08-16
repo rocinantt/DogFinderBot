@@ -91,10 +91,11 @@ async def send_results(message: types.Message, results, offset):
                              reply_markup=get_more_results_markup())
 
 
-async def clear_state(state: FSMContext, chat_id: int, user_id: int, timeout: int = 60):
+async def clear_state(state: FSMContext, chat_id: int, user_id: int, bot=Bot, timeout: int = 60):
     """Очистить состояние пользователя через определенное время (по умолчанию 10 минут)."""
     await asyncio.sleep(timeout)
     logger.info('Запущен таймер до очистки')
     await state.clear()
+    await bot.send_message(chat_id, 'Сессия истекла')
 
 

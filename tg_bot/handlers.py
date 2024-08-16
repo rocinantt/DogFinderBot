@@ -1,7 +1,7 @@
 #handlers.py
 import logging
 import asyncio
-from aiogram import types, F, Dispatcher, Router
+from aiogram import types, F, Dispatcher, Router, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
@@ -142,7 +142,7 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
         "Начинаю поиск объявлений о пропавших собаках за выбранный период. Пожалуйста, подождите.")
     # Запускаем таймер на очистку состояния через 10 минут
     asyncio.create_task(
-        clear_state(state=FSMContext, chat_id=callback_query.message.chat.id, user_id=callback_query.from_user.id))
+        clear_state(state=FSMContext, chat_id=callback_query.message.chat.id, user_id=callback_query.from_user.id, bot=Bot))
 
     await search_similar_posts(callback_query.message, state)
 

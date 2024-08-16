@@ -57,8 +57,9 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
                 if response.status == 200:
                     results = await response.json()
                     await state.update_data(results=results)
+                    logger.info(f"len results {len(results)}")
                     await send_results(message, results[:5])
-                    await state.update_data(offset=5)
+
                 else:
                     logger.error(f"Error response from photo_comparator: {response.status}")
                     await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")

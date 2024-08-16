@@ -1,5 +1,6 @@
 #handlers.py
 import logging
+import asyncio
 from aiogram import types, F, Dispatcher, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -7,7 +8,7 @@ from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
 from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
-from utils import load_faq, search_similar_posts, send_results
+from utils import load_faq, search_similar_posts, send_results, clear_state
 from database import get_user_region, save_user_region, get_groups, get_districts
 from config import logger
 
@@ -139,6 +140,10 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
     await state.update_data(days=days)
     await callback_query.message.edit_text(
         "Начинаю поиск объявлений о пропавших собаках за выбранный период. Пожалуйста, подождите.")
+    # Запускаем таймер на очистку состояния через 10 минут
+    asyncio.create_task(
+        clear_state(router.dp, callback_query.message.chat.id, callback_query.from_user.id))
+
     await search_similar_posts(callback_query.message, state)
 
 
@@ -184,7 +189,7 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
     offset = data.get('offset', 5)
 
     if offset < len(results):
-        await send_results(callback_query.message, results[offset:offset+5])
+        await send_results(callback_query.message, results[offset:offset+5], offset)
         await state.update_data(offset=offset+5)  # Обновляем смещение
     else:
         await callback_query.message.answer("Больше постов нет. Перейдите в меню чтобы начать сначала")

@@ -1,13 +1,16 @@
 #utils.py
 import os
 import aiohttp
-from aiogram import types
+import asyncio
+from aiogram import types, Dispatcher
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import API_TOKEN
 from aiogram import Bot
 from config import logger
 from keyboards import get_more_results_markup
+
+
 
 # Load FAQ file
 def load_faq():
@@ -70,8 +73,6 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         await session.close()  # Явное закрытие сессии
 
 
-
-
 # Send results to the user
 async def send_results(message: types.Message, results, offset):
     if not results:
@@ -89,4 +90,11 @@ async def send_results(message: types.Message, results, offset):
         await message.answer("Вы можете загрузить следующие 5 постов.",
                              reply_markup=get_more_results_markup())
 
+
+async def clear_state(dp: Dispatcher, chat_id: int, user_id: int, timeout: int = 600):
+    """Очистить состояние пользователя через определенное время (по умолчанию 10 минут)."""
+    await asyncio.sleep(timeout)
+    state = dp.current_state(chat=chat_id, user=user_id)
+    await state.clear()
+    await dp.bot.send_message(chat_id, "Сессия истекла, данные были очищены.")
 

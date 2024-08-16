@@ -142,7 +142,7 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
         "Начинаю поиск объявлений о пропавших собаках за выбранный период. Пожалуйста, подождите.")
     # Запускаем таймер на очистку состояния через 10 минут
     asyncio.create_task(
-        clear_state(router.dp, callback_query.message.chat.id, callback_query.from_user.id))
+        clear_state(callback_query.bot, callback_query.message.chat.id, callback_query.from_user.id))
 
     await search_similar_posts(callback_query.message, state)
 

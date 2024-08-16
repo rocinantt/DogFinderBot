@@ -1,12 +1,22 @@
 #utils.py
 import os
 import aiohttp
+import aioredis
+import json
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import API_TOKEN
 from aiogram import Bot
 from config import logger
+
+redis = await aioredis.create_redis_pool("redis://localhost:6379")
+
+async def save_results_to_cache(user_id, results):
+    await redis.setex(f"user:{user_id}:results", 900, json.dumps(results))
+
+async def save_results_to_cache(user_id, results):
+    await redis.setex(f"user:{user_id}:results", 900, json.dumps(results))
 
 # Load FAQ file
 def load_faq():
@@ -55,7 +65,8 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
                 logger.info(f"Received response with status: {response.status}")
                 if response.status == 200:
                     results = await response.json()
-                    await send_results(message, results)
+                    await state.update_data(results=results)
+                    await send_results(message, results[:5])
                 else:
                     logger.error(f"Error response from photo_comparator: {response.status}")
                     await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")

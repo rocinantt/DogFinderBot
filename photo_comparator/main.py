@@ -38,8 +38,10 @@ async def find_similar_images(image_url: str, region: str, days: int, area: Opti
     """Find similar images in the database."""
 
     posts = await get_posts(region, days, area, district, unassigned)
+    logger.info(f"Number of posts retrieved: {len(posts)}")
     query_image_tensor = await load_image(image_url)
     if query_image_tensor is None:
+        logger.error("Failed to load image for comparison.")
         return []
 
     query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
@@ -47,7 +49,7 @@ async def find_similar_images(image_url: str, region: str, days: int, area: Opti
     similar_posts = get_top_n_similar_posts(query_features,
                                             [(post['post_link'], json.loads(post['features']), post['date']) for post in
                                              posts])
-
+    logger.info(f"Number of similar posts found: {len(similar_posts)}")
     return [{'post_link': post['post_link'], 'date': post['date']} for post in similar_posts]
 
 @app.post('/compare')

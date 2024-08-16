@@ -2,7 +2,7 @@
 import os
 import aiohttp
 import asyncio
-from aiogram import types, Dispatcher
+from aiogram import types, Dispatcher, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import API_TOKEN

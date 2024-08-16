@@ -6,7 +6,6 @@ from aiogram import types, Dispatcher
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import API_TOKEN
-from aiogram import Bot
 from config import logger
 from keyboards import get_more_results_markup
 
@@ -86,16 +85,8 @@ async def send_results(message: types.Message, results, offset):
         """
         await message.answer(text, parse_mode=ParseMode.HTML)
 
-    if len(results) == 5:
-        await message.answer("Вы можете загрузить следующие 5 постов.",
-                             reply_markup=get_more_results_markup())
+    if len(results) > 0:
+        await message.answer(reply_markup=get_more_results_markup())
 
-
-async def clear_state(state: FSMContext, chat_id: int, user_id: int, bot=Bot, timeout: int = 60):
-    """Очистить состояние пользователя через определенное время (по умолчанию 10 минут)."""
-    await asyncio.sleep(timeout)
-    logger.info('Запущен таймер до очистки')
-    await state.clear()
-    await bot.send_message(chat_id, 'Сессия истекла')
 
 

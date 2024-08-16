@@ -50,4 +50,6 @@ def get_days_markup():
 def get_more_results_markup():
     builder = InlineKeyboardBuilder()
     builder.button(text="Показать еще", callback_data="more_results")
+    builder.button(text="Начать заново", callback_data="start")
+    builder.adjust(2)
     return builder.as_markup()

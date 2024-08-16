@@ -40,10 +40,9 @@ def get_districts_markup(districts):
     return builder.as_markup()
 
 def get_days_markup():
-    days_options = [1, 3, 7, 15]
+    days_options = [1, 3, 7, 10, 20, 30]
     builder = InlineKeyboardBuilder()
     for days in days_options:
         builder.button(text=str(days), callback_data=f"days_{days}")
-    builder.button(text="Ввести свое количество дней", callback_data="custom_days")
-    builder.adjust(1)
+        builder.adjust(2)
     return builder.as_markup()

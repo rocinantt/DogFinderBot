@@ -88,7 +88,7 @@ async def send_results(message: types.Message, results, offset):
         await message.answer(text, parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
-        await message.answer(' ', reply_markup=get_more_results_markup())
+        await message.answer('q', reply_markup=get_more_results_markup())
     else:
         builder = InlineKeyboardBuilder()
         builder.button(text='Начать заново', callback_data='start')

@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
 from config import DATABASE_URL
-from model import load_image, extract_features, processor, model  # Импортируем processor и model из model.py
+from model import load_image, extract_features, processor, model
 from posts import get_posts
 from similarity import calculate_similarity, get_top_n_similar_posts
 

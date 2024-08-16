@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
-
+from config import logger
 
 def calculate_similarity(query_features, post_features):
     """Calculate the maximum cosine similarity between query features and post features."""
@@ -23,7 +23,7 @@ def get_top_n_similar_posts(query_features, posts, n=30):
 
     # Создаем список кортежей (similarity, post_link, post_date)
     posts_with_similarity = [(similarity, post[0], post[2]) for post, similarity in zip(posts, similarities)]
-
+    logger.info(f"len results {len(posts_with_similarity)}")
     # Используем heapq для получения N постов с самой высокой схожестью
     similar_posts = heapq.nlargest(n, posts_with_similarity, key=lambda x: x[0])
 

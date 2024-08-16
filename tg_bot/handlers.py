@@ -34,11 +34,11 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(handle_area, F.data.startswith("area_"))
     dp.callback_query.register(handle_district, F.data.startswith("district_"))
     dp.callback_query.register(handle_days, F.data.startswith("days_"))
-    dp.callback_query.register(handle_unassigned, F.data == "unassigned")  # Добавлен новый обработчик
+    dp.callback_query.register(handle_unassigned, F.data == "unassigned")
     dp.callback_query.register(skip_area, F.data == "skip_area")
-    dp.callback_query.register(skip_district, F.data == "skip_district")  # Добавлен новый обработчик
+    dp.callback_query.register(skip_district, F.data == "skip_district")
     dp.callback_query.register(custom_days, F.data == "custom_days")
-
+    dp.callback_query.register(handle_more_results, F.data == "more_results")
 
 
 @router.message(Command(commands=['start']))

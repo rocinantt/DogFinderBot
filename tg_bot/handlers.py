@@ -179,9 +179,10 @@ async def skip_district(callback_query: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "more_results")
 async def handle_more_results(callback_query: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    results = data.get('results', [])
-    offset = data.get('offset')
+
+    results = await state.get_data('results')
+    logger.info(f"len results {len(results)}")
+    offset = await state.get_data('offset')
 
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5])

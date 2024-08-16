@@ -8,6 +8,7 @@ from config import API_TOKEN
 from aiogram import Bot
 from config import logger
 from asyncio import sleep
+from keyboards import show_more_markup
 
 
 # Load FAQ file
@@ -30,6 +31,7 @@ async def start_cache_timer(state: FSMContext):
 
 
 async def search_similar_posts(message: types.Message, state: FSMContext):
+    logger.info(f"Executing search_similar_posts for user {message.from_user.id}")
     user_id = message.from_user.id
     data = await state.get_data()
     photo_file_id = data['photo']
@@ -75,10 +77,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     finally:
         await session.close()  # Явное закрытие сессии
 
-def show_more_markup():
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("Показать ещё", callback_data="show_more"))
-    return markup
+
 
 
 # Send results to the user
@@ -96,9 +95,11 @@ async def send_results(message: types.Message, state: FSMContext, batch_size=5):
     {result['post_link']}
             """
         await message.answer(text, parse_mode=ParseMode.HTML)
+        logger.info(f"Sent message #{i + 1}")
 
     if end_index < len(results):
         await message.answer("Показать ещё?", reply_markup=show_more_markup())
+        logger.info("Sent 'Показать ещё?' button")
 
     await state.update_data(results_index=end_index)
 

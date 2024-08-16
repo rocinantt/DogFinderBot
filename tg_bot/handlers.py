@@ -6,7 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
-from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
+from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup, show_more_markup
 from utils import load_faq, search_similar_posts, send_results
 from database import get_user_region, save_user_region, get_groups, get_districts
 from config import logger
@@ -180,4 +180,5 @@ async def handle_end(message: types.Message, state: FSMContext):
 
 @router.callback_query(F.data == "show_more")
 async def handle_show_more(callback_query: CallbackQuery, state: FSMContext):
+    logger.info(f"Show more button clicked by {callback_query.from_user.id}")
     await send_results(callback_query.message, state)

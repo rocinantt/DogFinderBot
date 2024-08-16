@@ -1,22 +1,12 @@
 #utils.py
 import os
 import aiohttp
-import aioredis
-import json
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import API_TOKEN
 from aiogram import Bot
 from config import logger
-
-redis = await aioredis.create_redis_pool("redis://localhost:6379")
-
-async def save_results_to_cache(user_id, results):
-    await redis.setex(f"user:{user_id}:results", 900, json.dumps(results))
-
-async def save_results_to_cache(user_id, results):
-    await redis.setex(f"user:{user_id}:results", 900, json.dumps(results))
 
 # Load FAQ file
 def load_faq():

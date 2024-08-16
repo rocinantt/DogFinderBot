@@ -89,10 +89,7 @@ async def send_results(message: types.Message, results, offset):
 
     if len(results) > 0:
         await message.answer('q', reply_markup=get_more_results_markup())
-    else:
-        builder = InlineKeyboardBuilder()
-        builder.button(text='Начать заново', callback_data='start')
-        await message.answer('Все загруженные посты показаны.', reply_markup=builder.as_markup())
+
 
 
 

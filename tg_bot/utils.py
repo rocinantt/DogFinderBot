@@ -7,9 +7,6 @@ from aiogram.enums import ParseMode
 from config import API_TOKEN
 from aiogram import Bot
 from config import logger
-from asyncio import sleep
-from keyboards import show_more_markup
-
 
 # Load FAQ file
 def load_faq():
@@ -21,17 +18,10 @@ def load_faq():
         logger.error("FAQ file not found")
         return "FAQ файл не найден. Пожалуйста, попробуйте позже."
 
-
-# Таймер для очистки кэша
-async def start_cache_timer(state: FSMContext):
-    await sleep(600)  # Ожидание 10 минут
-    await state.clear()  # Очистка состояния
-    logger.info("Кэш очищен через 10 минут бездействия")
-
-
-
+# Search for similar posts
+# Search for similar posts
+# Search for similar posts
 async def search_similar_posts(message: types.Message, state: FSMContext):
-    logger.info(f"Executing search_similar_posts for user {message.from_user.id}")
     user_id = message.from_user.id
     data = await state.get_data()
     photo_file_id = data['photo']
@@ -65,9 +55,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
                 logger.info(f"Received response with status: {response.status}")
                 if response.status == 200:
                     results = await response.json()
-                    await state.update_data(results=results, results_index=0)
-                    await start_cache_timer(state)
-                    await send_results(message, state)
+                    await send_results(message, results)
                 else:
                     logger.error(f"Error response from photo_comparator: {response.status}")
                     await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
@@ -81,26 +69,15 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
 
 
 # Send results to the user
-async def send_results(message: types.Message, state: FSMContext, batch_size=5):
+async def send_results(message: types.Message, results):
+    if not results:
+        await message.answer("Не найдено объявлений по заданным критериям.")
+        return
 
-    data = await state.get_data()
-    results = data.get('results', [])
-    index = data.get('results_index', 0)
-
-    end_index = index + batch_size
-    for i in range(index, min(end_index, len(results))):
-        result = results[i]
+    for index, result in enumerate(results, 1):
         text = f"""
-            <b>#{i + 1}  {result['date']}</b>
-    {result['post_link']}
-            """
+        <b>#{index}  {result['date']}</b>
+{result['post_link']}
+        """
         await message.answer(text, parse_mode=ParseMode.HTML)
-        logger.info(f"Sent message #{i + 1}")
-
-    if end_index < len(results):
-        await message.answer("Показать ещё?", reply_markup=show_more_markup())
-        logger.info("Sent 'Показать ещё?' button")
-
-    await state.update_data(results_index=end_index)
-
 

@@ -9,6 +9,7 @@ from aiogram import Bot
 from config import logger
 from asyncio import sleep
 
+
 # Load FAQ file
 def load_faq():
     try:
@@ -74,7 +75,10 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     finally:
         await session.close()  # Явное закрытие сессии
 
-
+def show_more_markup():
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton("Показать ещё", callback_data="show_more"))
+    return markup
 
 
 # Send results to the user

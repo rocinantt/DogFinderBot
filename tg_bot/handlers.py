@@ -181,7 +181,7 @@ async def skip_district(callback_query: CallbackQuery, state: FSMContext):
 async def handle_more_results(callback_query: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     results = data.get('results', [])
-    offset = data.get('offset', 6)  # По умолчанию начинаем с 5-го результата
+    offset = data.get('offset')
 
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5])

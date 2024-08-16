@@ -185,7 +185,7 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
 
     logger.info(f"len results: {len(results)}, current offset: {offset}")
 
-    if offset < len(results):
+    if offset <= len(results):
         await send_results(callback_query.message, results[offset:offset+5])
         await state.update_data(offset=offset+5)  # Обновляем смещение
     else:

@@ -6,8 +6,7 @@ from aiogram import types, Dispatcher, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from config import API_TOKEN
-from config import logger
+from config import API_TOKEN, logger
 from keyboards import get_more_results_markup
 
 
@@ -22,8 +21,7 @@ def load_faq():
         logger.error("FAQ file not found")
         return "FAQ файл не найден. Пожалуйста, попробуйте позже."
 
-# Search for similar posts
-# Search for similar posts
+
 # Search for similar posts
 async def search_similar_posts(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
@@ -78,7 +76,6 @@ async def send_results(message: types.Message, results, offset):
     if not results:
         await message.answer("Не найдено объявлений по заданным критериям.")
         return
-    builder = InlineKeyboardBuilder()
 
     for index, result in enumerate(results, offset + 1):
         text = f"""
@@ -88,11 +85,15 @@ async def send_results(message: types.Message, results, offset):
         await message.answer(text, parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
-        await message.answer('Если не нашли нужный пост:', reply_markup=get_more_results_markup())
+        await message.edit_reply_markup(reply_markup=get_more_results_markup())
     else:
-        builder = InlineKeyboardBuilder()
-        builder.button(text='Начать заново   ', callback_data='start')
-        await message.answer('Все загруженные посты показаны.', reply_markup=builder.as_markup())
+        await message.edit_reply_markup(
+            reply_markup=InlineKeyboardBuilder()
+            .button(text='Начать заново   ', callback_data='start')
+            .as_markup()
+        )
+     #   await message.edit_text("Показаны все загруженные посты.")
+
 
 
 

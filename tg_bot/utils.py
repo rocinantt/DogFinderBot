@@ -68,8 +68,6 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     except Exception as e:
         logger.exception(f"Exception during search_similar_posts: {e}")
         await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
-    finally:
-        await session.close()  # Явное закрытие сессии
 
 
 # Send results to the user
@@ -86,7 +84,7 @@ async def send_results(message: types.Message, results, offset):
         await message.answer(parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
-        await message.edit_reply_markup(reply_markup=get_more_results_markup())
+        await message.answer('\u200B', reply_markup=get_more_results_markup())
     else:
         builder = InlineKeyboardMarkup()
         builder.add(InlineKeyboardButton(text='Начать заново   ', callback_data='start'))

@@ -40,7 +40,7 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(skip_district, F.data == "skip_district")
     dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
-
+    dp.callback_query.register(handle_start, F.data == "start")
 
 @router.message(Command(commands=['start']))
 async def send_welcome(message: types.Message, state: FSMContext):
@@ -194,21 +194,7 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
 async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
     """Handles the start command initiated by inline keyboard."""
     await state.clear()
-    user_region = get_user_region(callback_query.from_user.id)
-    if user_region:
-        await callback_query.message.answer(
-            f"Привет! Ваш текущий регион: {user_region}. Отправьте мне фото найденной Вами собаки, и я помогу найти похожие объявления о пропавших.",
-            reply_markup=types.ReplyKeyboardRemove()
-        )
-        await state.set_state(Form.photo)
-    else:
-        logging.info(f"Пользователь {callback_query.from_user.id} начал пользоваться ботом")
-        await callback_query.message.answer(
-            "Привет! Я DogFinderBot. Для начала выберите регион.",
-            reply_markup=get_regions_markup()
-        )
-        await state.set_state(Form.region)
-
+    await send_welcome(callback_query.message, state)
 
 
 @router.message(Command(commands=['end']))

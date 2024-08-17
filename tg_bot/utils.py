@@ -82,17 +82,14 @@ async def send_results(message: types.Message, results, offset):
         <b>#{index}  {result['date']}</b>
 {result['post_link']}
         """
-        await message.answer(text, parse_mode=ParseMode.HTML)
+        await message.answer(parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
         await message.edit_reply_markup(reply_markup=get_more_results_markup())
     else:
-        await message.edit_reply_markup(
-            reply_markup=InlineKeyboardBuilder()
-            .button(text='Начать заново   ', callback_data='start')
-            .as_markup()
-        )
-     #   await message.edit_text("Показаны все загруженные посты.")
+        builder = InlineKeyboardMarkup()
+        builder.add(InlineKeyboardButton(text='Начать заново   ', callback_data='start'))
+        await message.answer('Все загруженные посты показаны.', reply_markup=builder)
 
 
 

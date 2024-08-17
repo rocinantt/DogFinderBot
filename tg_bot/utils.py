@@ -6,6 +6,7 @@ from aiogram import types, Dispatcher, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_TOKEN, logger
 from keyboards import get_more_results_markup
 

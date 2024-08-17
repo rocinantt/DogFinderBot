@@ -86,7 +86,7 @@ async def send_results(message: types.Message, results, offset):
         await message.answer(text, parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
-        await message.answer('\u00A0', reply_markup=get_more_results_markup())
+        await message.answer('Не нашли нужный пост?', reply_markup=get_more_results_markup())
     else:
         builder = InlineKeyboardMarkup()
         builder.add(InlineKeyboardButton(text='Начать заново   ', callback_data='start'))

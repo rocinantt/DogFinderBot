@@ -183,7 +183,7 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
     data = await state.get_data()
     results = data.get('results', [])
     offset = data.get('offset', 5)
-
+    await callback_query.message.edit_reply_markup(reply_markup=None)
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5], offset)
         await state.update_data(offset=offset+5)  # Обновляем смещение
@@ -194,6 +194,7 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
 async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
     """Handles the start command initiated by inline keyboard."""
     await state.clear()
+    await callback_query.message.edit_reply_markup(reply_markup=None)
     await send_welcome(callback_query.message, state)
 
 

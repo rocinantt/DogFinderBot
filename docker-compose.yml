@@ -92,8 +92,8 @@ services:
 
 networks:
   default:
-    external:
-      name: dog_finder_network
+    name: dog_finder_network
+    external: true
 
 volumes:
   db-data:

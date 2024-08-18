@@ -20,7 +20,6 @@ services:
       TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
-
   grafana:
     image: grafana/grafana:latest
     ports:

@@ -1,4 +1,3 @@
-version: '3.8'
 
 x-def-logging: &default-logging
   logging:

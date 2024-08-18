@@ -195,10 +195,21 @@ async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
     """Handles the start command initiated by inline keyboard."""
     await state.clear()
     await callback_query.message.edit_reply_markup(reply_markup=None)
-    await send_welcome(callback_query.message, state)
+    user_region = get_user_region(callback_query.from_user.id)
+    if user_region:
+        await callback_query.message.answer(
+            f"Отправьте мне еще одно фото найденной Вами собаки, и я помогу найти похожие объявления о пропавших.",
+            reply_markup=types.ReplyKeyboardRemove())
+        await state.set_state(Form.photo)
+    else:
+        await callback_query.message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
+        await state.set_state(Form.region)
+
 
 
 @router.message(Command(commands=['end']))
 async def handle_end(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("Сессия завершена. Для начала новой сессии перейдите в меню.")
+
+

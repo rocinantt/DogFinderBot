@@ -51,5 +51,5 @@ def check_new_posts_for_all_groups():
 if __name__ == "__main__":
     while True:
         check_new_posts_for_all_groups()
-        logger.info("Sleeping for 120 minutes...")
+        logger.info("Sleeping for 20 minutes...")
         sleep(20 * 60)

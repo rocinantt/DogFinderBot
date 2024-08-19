@@ -17,7 +17,7 @@ async def get_posts(region: str, days: int, area: Optional[str] = None, district
         params = [region, date_threshold]
 
         if unassigned:
-            query += " AND area IS NULL AND district IS NULL"
+            query += " AND area = ''"
         else:
             if area:
                 query += " AND area = $3"

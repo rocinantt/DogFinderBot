@@ -20,9 +20,10 @@ from keyboards import (get_regions_markup,
                        get_animal_type_markup,
                        start_again_markup)
 
-
-
 router = Router()
+
+
+# ----------------------- Состояние FSM --------------------------------------
 
 class Form(StatesGroup):
     photo = State()
@@ -33,12 +34,14 @@ class Form(StatesGroup):
     animal_type = State()
 
 
+# ----------------------- Регистрация хэндлеров --------------------------------------
+
 def register_handlers(dp: Dispatcher):
+    """Регистрация всех обработчиков команд и событий."""
     dp.message.register(send_welcome, Command(commands=['start']))
     dp.message.register(handle_faq, Command(commands=['faq']))
     dp.message.register(handle_change_region, Command(commands=['change_region']))
     dp.message.register(handle_get_groups, Command(commands=['get_groups']))
-    dp.message.register(handle_end, Command(commands=['end']))
     dp.message.register(handle_photo, Form.photo, F.content_type == types.ContentType.PHOTO)
 
     dp.callback_query.register(handle_region, F.data.startswith("region_"))
@@ -48,19 +51,21 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(handle_unassigned, F.data == "unassigned")
     dp.callback_query.register(skip_area, F.data == "skip_area")
     dp.callback_query.register(skip_district, F.data == "skip_district")
-    dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
     dp.callback_query.register(handle_start, F.data == "start")
     dp.callback_query.register(handle_animal_type, F.data.in_({"dog", "cat"}))
 
 
+# ----------------------- Функции меню --------------------------------------
+
 @router.message(Command(commands=['start']))
 async def send_welcome(message: types.Message, state: FSMContext):
+    """Отправляет приветственное сообщение и предлагает выбрать регион или животное."""
     await state.clear()
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await message.answer(
-            f"Привет!\nВаш текущий регион: {user_region}.\nКакое животное Вы ищете?",
+            f"Привет! Ваш текущий регион: {user_region}.\nКакое животное Вы ищете?",
             reply_markup=get_animal_type_markup())
         await state.set_state(Form.animal_type)
     else:
@@ -69,39 +74,79 @@ async def send_welcome(message: types.Message, state: FSMContext):
         await state.set_state(Form.region)
 
 
-@router.callback_query(F.data.in_({"dog", "cat"}))
-async def handle_animal_type(callback_query: CallbackQuery, state: FSMContext):
-        logger.info("handle_animal_type called")
-        animal_type = callback_query.data
-        logger.info(f"Animal type selected by {callback_query.from_user.id}: {animal_type}")
-        await state.update_data(animal_type=animal_type)
-        await callback_query.message.edit_text(f"Вы выбрали {animal_type}. Теперь отправьте фото животного.")
-        await state.set_state(Form.photo)
-
-
-@router.message(Command(commands=['faq']))
-async def handle_faq(message: types.Message):
-    faq_content = load_faq()
-    await message.answer(faq_content, parse_mode='Markdown', reply_markup=types.ReplyKeyboardRemove())
-
-
 @router.message(Command(commands=['change_region']))
 async def handle_change_region(message: types.Message, state: FSMContext):
+    """Позволяет пользователю изменить регион."""
     await message.answer("Пожалуйста, выберите новый регион.", reply_markup=get_regions_markup())
     await state.set_state(Form.region)
 
 
+@router.message(Command(commands=['faq']))
+async def handle_faq(message: types.Message):
+    """Отправляет FAQ пользователю."""
+    faq_content = load_faq()
+    await message.answer(faq_content, parse_mode='Markdown', reply_markup=types.ReplyKeyboardRemove())
+
+
+@router.message(Command(commands=['get_groups']))
+async def handle_get_groups(message: types.Message, state: FSMContext):
+    """Отправляет список доступных групп по выбранному региону."""
+    user_region = get_user_region(message.from_user.id)
+    if user_region:
+        groups = get_groups(user_region)
+        if groups:
+            response = "\n".join(
+                [f"{i + 1}. {group['group_name']}\n{group['group_link']}" for i, group in enumerate(groups)])
+        else:
+            response = "Группы не найдены."
+        await message.answer(response, reply_markup=types.ReplyKeyboardRemove())
+    else:
+        await message.answer("Сначала выберите регион с помощью команды /change_region.")
+
+
+# ----------------------- Основной цикл событий --------------------------------------
+
+@router.callback_query(F.data == 'start')
+async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
+    """Обрабатывает команду 'Начать заново', инициированную с помощью инлайн-клавиатуры."""
+    await state.clear()
+    await callback_query.message.delete()
+    user_region = get_user_region(callback_query.from_user.id)
+    if user_region:
+        await callback_query.message.answer(
+            f"Ваш текущий регион: {user_region}. Какое животное вы ищете?",
+            reply_markup=get_animal_type_markup())
+        await state.set_state(Form.animal_type)
+    else:
+        await callback_query.message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
+        await state.set_state(Form.region)
+
+
 @router.callback_query(F.data.startswith("region_"))
 async def handle_region(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор региона пользователем."""
     region = callback_query.data.split("_")[1]
     logger.info(f"Region selected by {callback_query.from_user.id}: {region}")
     save_user_region(callback_query.from_user.id, region)
-    await callback_query.message.edit_text(f"Вы выбрали регион {region}. Какое животное вы ищете?")
+    await callback_query.message.edit_text(f"Вы выбрали регион {region}. Какое животное вы ищете?",
+                                           reply_markup=get_animal_type_markup())
     await state.set_state(Form.animal_type)
+
+
+@router.callback_query(F.data.in_({"dog", "cat"}))
+async def handle_animal_type(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор типа животного (собака или кошка) пользователем."""
+    logger.info("handle_animal_type called")
+    animal_type = callback_query.data
+    logger.info(f"Animal type selected by {callback_query.from_user.id}: {animal_type}")
+    await state.update_data(animal_type=animal_type)
+    await callback_query.message.edit_text(f"Вы выбрали {animal_type}. Теперь отправьте фото животного.")
+    await state.set_state(Form.photo)
 
 
 @router.message(Form.photo, F.content_type == types.ContentType.PHOTO)
 async def handle_photo(message: types.Message, state: FSMContext):
+    """Обрабатывает отправку фотографии пользователем и предлагает выбрать район поиска."""
     logger.info(f"Received photo from {message.from_user.id}")
     await state.update_data(photo=message.photo[-1].file_id)
     user_region = get_user_region(message.from_user.id)
@@ -116,8 +161,11 @@ async def handle_photo(message: types.Message, state: FSMContext):
         await state.set_state(Form.region)
 
 
+# ----------------------- Areas handlers --------------------------------------
+
 @router.callback_query(F.data.startswith("area_"))
 async def handle_area(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор района для поиска."""
     area = callback_query.data.split("_")[1]
     logger.info(f"Area selected by {callback_query.from_user.id}: {area}")
     data = await state.get_data()
@@ -134,9 +182,18 @@ async def handle_area(callback_query: CallbackQuery, state: FSMContext):
             reply_markup=get_days_markup())
         await state.set_state(Form.days)
 
+@router.callback_query(F.data == "unassigned")
+async def handle_unassigned(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор поиска среди нераспределенных постов."""
+    logger.info(f"Unassigned selected by {callback_query.from_user.id}")
+    await state.update_data(area=None, district=None, unassigned=True)
+    await callback_query.message.edit_text("Выбраны нераспределенные посты. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await state.set_state(Form.days)
+
 
 @router.callback_query(F.data == "skip_area")
 async def skip_area(callback_query: CallbackQuery, state: FSMContext):
+    """Пропускает выбор района области и предлагает выбрать временной интервал поиска."""
     await state.update_data(area=None)
     await callback_query.message.edit_text(
         "Выбран поиск по всему региону. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.",
@@ -144,8 +201,11 @@ async def skip_area(callback_query: CallbackQuery, state: FSMContext):
     await state.set_state(Form.days)
 
 
+# ----------------------- Districts handlers --------------------------------------
+
 @router.callback_query(F.data.startswith("district_"))
 async def handle_district(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор района города для поиска."""
     district = callback_query.data.split("_")[1]
     logger.info(f"District selected by {callback_query.from_user.id}: {district}")
     await state.update_data(district=district)
@@ -155,8 +215,19 @@ async def handle_district(callback_query: CallbackQuery, state: FSMContext):
     await state.set_state(Form.days)
 
 
+@router.callback_query(F.data == "skip_district")
+async def skip_district(callback_query: CallbackQuery, state: FSMContext):
+    """Пропускает выбор района и предлагает выбрать временной интервал поиска."""
+    logger.info(f"District skipped by {callback_query.from_user.id}")
+    await state.update_data(district=None)
+    await callback_query.message.edit_text("Вы пропустили выбор района. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
+    await state.set_state(Form.days)
+
+
+# ----------------------- Days handler --------------------------------------
 @router.callback_query(F.data.startswith("days_"))
 async def handle_days(callback_query: CallbackQuery, state: FSMContext):
+    """Обрабатывает выбор периода поиска."""
     days = int(callback_query.data.split("_")[1])
     logger.info(f"Days input by {callback_query.from_user.id}: {days}")
     await state.update_data(days=days)
@@ -165,43 +236,11 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
     await search_similar_posts(callback_query.message, state)
 
 
-@router.callback_query(F.data == "custom_days")
-async def custom_days(callback_query: CallbackQuery, state: FSMContext):
-    await callback_query.message.edit_text("Введите количество дней.", reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(Form.days)
-
-
-@router.message(Command(commands=['get_groups']))
-async def handle_get_groups(message: types.Message, state: FSMContext):
-    user_region = get_user_region(message.from_user.id)
-    if user_region:
-        groups = get_groups(user_region)
-        if groups:
-            response = "\n".join(
-                [f"{i + 1}. {group['group_name']}\n{group['group_link']}" for i, group in enumerate(groups)])
-        else:
-            response = "Группы не найдены."
-        await message.answer(response, reply_markup=types.ReplyKeyboardRemove())
-    else:
-        await message.answer("Сначала выберите регион с помощью команды /change_region.")
-
-@router.callback_query(F.data == "unassigned")
-async def handle_unassigned(callback_query: CallbackQuery, state: FSMContext):
-    logger.info(f"Unassigned selected by {callback_query.from_user.id}")
-    await state.update_data(area=None, district=None, unassigned=True)
-    await callback_query.message.edit_text("Выбраны нераспределенные посты. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
-    await state.set_state(Form.days)
-
-@router.callback_query(F.data == "skip_district")
-async def skip_district(callback_query: CallbackQuery, state: FSMContext):
-    logger.info(f"District skipped by {callback_query.from_user.id}")
-    await state.update_data(district=None)
-    await callback_query.message.edit_text("Вы пропустили выбор района. За какой период искать объявления? Выберите из предложенных вариантов или введите свое количество дней.", reply_markup=get_days_markup())
-    await state.set_state(Form.days)
-
+# ----------------------- More results handlers --------------------------------------
 
 @router.callback_query(F.data == "more_results")
 async def handle_more_results(callback_query: types.CallbackQuery, state: FSMContext):
+    """Обрабатывает запрос на показ дополнительных результатов."""
     data = await state.get_data()
     results = data.get('results', [])
     offset = data.get('offset', 5)
@@ -214,28 +253,5 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
         await callback_query.message.answer("Больше постов нет, но Вы можете начать заново.",
                                             reply_markup=start_again_markup())
 
-@router.callback_query(F.data == 'start')
-async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
-    """Handles the start command initiated by inline keyboard."""
-    await state.clear()
-    await callback_query.message.delete()
-    #await callback_query.message.edit_reply_markup(reply_markup=None)
-    user_region = get_user_region(callback_query.from_user.id)
-    if user_region:
-        await callback_query.message.answer(
-            f"Ваш текущий регион: {user_region}. Какое животное вы ищете?",
-            reply_markup=get_animal_type_markup())
-        await state.set_state(Form.animal_type)
-    else:
-        await callback_query.message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
-        await state.set_state(Form.region)
-
-
-
-
-@router.message(Command(commands=['end']))
-async def handle_end(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Сессия завершена. Для начала новой сессии перейдите в меню.")
 
 

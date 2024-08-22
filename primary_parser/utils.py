@@ -94,3 +94,16 @@ def filter_other_animal(text):
     excluded_words = r"(?:\b|\s|#)(кот|кота|кошка|кошку|котенок|котик|попугай|котёнок)\b|#\S*(кот|кота|кошка|кошку|котенок|котик|попугай|котёнок)\S*"
     pattern = re.compile(excluded_words, re.IGNORECASE)
     return bool(pattern.search(text))
+
+
+def determine_animal_type(text):
+    """Определяет тип животного на основе текста поста."""
+    cat_keywords = r"(кот|кота|кошка|кошку|котенок|котик|киса|котом|кошке|котятам|котёнок|котятки|кошки|котенка|кошечка|кошечку|кошечки|котята)"
+    excluded_words = fr"(?:\b|\s|#){cat_keywords}\b|#\S*{cat_keywords}\S*"
+
+    pattern = re.compile(excluded_words, re.IGNORECASE)
+    if pattern.search(text):
+        return 'cat'
+    else:
+        return 'dog'
+

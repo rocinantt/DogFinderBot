@@ -30,6 +30,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     photo_file_id = data['photo']
     region = data.get('region')
     days = data['days']
+    animal_type = data['animal_type']
     area = data.get('area')
     district = data.get('district')
     unassigned = data.get('unassigned', False)
@@ -40,6 +41,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         'image_url': image_url,
         'region': region,
         'days': days,
+        'animal_type': animal_type,
     }
 
     if unassigned:

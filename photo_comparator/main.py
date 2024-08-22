@@ -1,3 +1,4 @@
+#main.py
 import os
 import json
 import logging
@@ -17,6 +18,7 @@ from model import load_image, extract_features, processor, model
 from posts import get_posts
 from similarity import calculate_similarity, get_top_n_similar_posts
 
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,15 +31,17 @@ class ImageRequest(BaseModel):
     image_url: str
     region: str
     days: int
+    animal_type: str
     area: Optional[str] = None
     district: Optional[str] = None
     unassigned: bool = False
 
-async def find_similar_images(image_url: str, region: str, days: int, area: Optional[str] = None,
+
+async def find_similar_images(image_url: str, region: str, days: int, animal_type: str, area: Optional[str] = None,
                               district: Optional[str] = None, unassigned: bool = False):
     """Find similar images in the database."""
 
-    posts = await get_posts(region, days, area, district, unassigned)
+    posts = await get_posts(region, days, animal_type, area, district, unassigned)
     logger.info(f"Number of posts retrieved: {len(posts)}")
     query_image_tensor = await load_image(image_url)
     if query_image_tensor is None:
@@ -58,6 +62,7 @@ async def compare(request: ImageRequest):
         image_url=request.image_url,
         region=request.region,
         days=request.days,
+        animal_type=request.animal_type,
         area=request.area,
         district=request.district,
         unassigned=request.unassigned

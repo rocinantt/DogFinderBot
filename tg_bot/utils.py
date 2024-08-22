@@ -69,7 +69,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         logger.exception(f"Exception during search_similar_posts: {e}")
         await message.answer("Произошла ошибка при поиске. Пожалуйста, попробуйте снова позже.")
     finally:
-        await session.close()  # Явное закрытие сессии
+        await session.close()
 
 
 # Send results to the user

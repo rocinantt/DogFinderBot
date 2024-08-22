@@ -205,10 +205,10 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
     data = await state.get_data()
     results = data.get('results', [])
     offset = data.get('offset', 5)
-    await callback_query.message.edit_reply_markup(reply_markup=None)
+
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5], offset)
-        await state.update_data(offset=offset+5)  # Обновляем смещение
+        await state.update_data(offset=offset+5)
     else:
         await callback_query.message.answer("Больше постов нет. Перейдите в меню чтобы начать сначала",
                                             reply_markup=start_again_markup())

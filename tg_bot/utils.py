@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_TOKEN, logger
-from keyboards import get_more_results_markup
+from keyboards import get_more_results_markup, start_again_markup
 
 
 
@@ -85,14 +85,11 @@ async def send_results(message: types.Message, results, offset):
         """
         await message.answer(text, parse_mode=ParseMode.HTML)
 
-    await message.edit_reply_markup(reply_markup=None)
 
     if len(results) > 0:
         await message.answer('Не нашли нужный пост?', reply_markup=get_more_results_markup())
     else:
-        builder = InlineKeyboardMarkup()
-        builder.add(InlineKeyboardButton(text='Начать заново   ', callback_data='start'))
-        await message.answer('Все загруженные посты показаны.', reply_markup=builder)
+        await message.answer('Все загруженные посты показаны.', reply_markup=start_again_markup())
 
 
 

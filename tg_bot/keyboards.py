@@ -63,5 +63,5 @@ def get_animal_type_markup():
 
 def start_again_markup():
     builder = InlineKeyboardBuilder()
-    builder.button(text="Начать заново", callback_date="start")
+    builder.button(text="Начать заново", callback_data="start")
     return builder.as_markup()

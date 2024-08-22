@@ -51,7 +51,7 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
     dp.callback_query.register(handle_start, F.data == "start")
-    dp.callback_query.register(handle_animal_type, F.data == 'animal_')
+    dp.callback_query.register(handle_animal_type, F.data.startswith == 'animal_')
 
 
 @router.message(Command(commands=['start']))
@@ -220,12 +220,13 @@ async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
     user_region = get_user_region(callback_query.from_user.id)
     if user_region:
         await callback_query.message.answer(
-            f"Отправьте мне еще одно фото найденной Вами собаки, и я помогу найти похожие объявления о пропавших.",
-            reply_markup=types.ReplyKeyboardRemove())
-        await state.set_state(Form.photo)
+            f"Ваш текущий регион: {user_region}. Какое животное вы ищете?",
+            reply_markup=get_animal_type_markup())
+        await state.set_state(Form.animal_type)
     else:
         await callback_query.message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
         await state.set_state(Form.region)
+
 
 
 

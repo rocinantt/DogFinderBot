@@ -150,15 +150,18 @@ async def handle_photo(message: types.Message, state: FSMContext):
     logger.info(f"Received photo from {message.from_user.id}")
     await state.update_data(photo=message.photo[-1].file_id)
     user_region = get_user_region(message.from_user.id)
+    data = await state.get_data()
+    animal_type = data.get('animal_type')
     if user_region:
         await state.update_data(region=user_region)
         await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\nНераспределенные - среди постов без указания адреса.",
-                             reply_markup=get_areas_markup(user_region))
+                             reply_markup=get_areas_markup(user_region, animal_type))  # Передаем тип животного
         await state.set_state(Form.area)
     else:
         await message.answer("Произошла ошибка. Пожалуйста, сначала выберите регион.",
                              reply_markup=get_regions_markup())
         await state.set_state(Form.region)
+
 
 
 # ----------------------- Areas handlers --------------------------------------
@@ -169,9 +172,10 @@ async def handle_area(callback_query: CallbackQuery, state: FSMContext):
     area = callback_query.data.split("_")[1]
     logger.info(f"Area selected by {callback_query.from_user.id}: {area}")
     data = await state.get_data()
+    animal_type = data.get('animal_type')
 
     await state.update_data(area=area, unassigned=False)
-    districts = get_districts(area)
+    districts = get_districts(area, animal_type)  # Передаем тип животного
     if districts:
         await callback_query.message.edit_text("Вы можете сузить область поиска или нажать 'Пропустить'.",
                                                reply_markup=get_districts_markup(districts))

@@ -11,10 +11,10 @@ def get_regions_markup():
     builder.adjust(2)
     return builder.as_markup()
 
-def get_areas_markup(region):
+def get_areas_markup(region, animal_type):
     """Генерирует клавиатуру с выбором area."""
     builder = InlineKeyboardBuilder()
-    areas = get_areas(region)
+    areas = get_areas(region, animal_type)
 
     for area, count in areas:
         button_text = f"{area} ({count})"
@@ -26,9 +26,10 @@ def get_areas_markup(region):
 
     return builder.as_markup()
 
-def get_districts_markup(districts):
+def get_districts_markup(districts, animal_type):
     """Генерирует клавиатуру с выбором районов."""
     builder = InlineKeyboardBuilder()
+    districts = get_districts(area, animal_type)
 
     for district, count in districts:
         button_text = f"{district} ({count})"

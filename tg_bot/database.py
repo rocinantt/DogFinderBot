@@ -3,6 +3,9 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from config import DATABASE_URL, logger
 
+
+# ----------------------- Обработка региона пользователя --------------------------------------
+
 def get_user_region(user_id):
     """Fetches the region of a user by user ID."""
     try:
@@ -38,14 +41,20 @@ def save_user_region(user_id, region):
             conn.close()
 
 
+# ----------------------- Получение данных из бд --------------------------------------
 def get_regions():
-    """Fetches all unique regions from the vk_groups table."""
+    """Fetches all unique regions and count of posts for a specific animal type."""
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
-            cursor.execute("SELECT DISTINCT region FROM vk_groups")
+            cursor.execute("""
+                SELECT region, COUNT(*)
+                FROM vk_posts
+                GROUP BY region
+                ORDER BY COUNT(*) DESC
+            """, (animal_type,))
             regions = cursor.fetchall()
-            return [region[0] for region in regions]
+            return [(region[0], region[1]) for region in regions]
     except psycopg2.Error as e:
         logger.error(f"Error fetching regions: {e}")
         return []
@@ -54,18 +63,18 @@ def get_regions():
             conn.close()
 
 
-def get_areas(region):
-    """Fetches all unique regions from the vk_groups table."""
+def get_areas(region, animal_type):
+    """Fetches all unique areas and count of posts for a specific region and animal type."""
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT area, COUNT(date)
+                SELECT area, COUNT(*)
                 FROM vk_posts
-                WHERE region = %s AND area != ''
+                WHERE region = %s AND animal_type = %s AND area != ''
                 GROUP BY area
-                ORDER BY count DESC
-                """, (region,))
+                ORDER BY COUNT(*) DESC
+            """, (region, animal_type))
             areas = cursor.fetchall()
             return areas
     except psycopg2.Error as e:
@@ -76,18 +85,18 @@ def get_areas(region):
             conn.close()
 
 
-def get_districts(area):
-    """Fetches all unique regions from the vk_groups table."""
+def get_districts(area, animal_type):
+    """Fetches all unique districts and count of posts for a specific area and animal type."""
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT district, COUNT(date)
+                SELECT district, COUNT(*)
                 FROM vk_posts
-                WHERE area = %s AND district != ''
+                WHERE area = %s AND animal_type = %s AND district != ''
                 GROUP BY district
-                ORDER BY count DESC
-                """, (area,))
+                ORDER BY COUNT(*) DESC
+            """, (area, animal_type))
             districts = cursor.fetchall()
             return districts
     except psycopg2.Error as e:
@@ -98,6 +107,7 @@ def get_districts(area):
             conn.close()
 
 
+# ----------------------- Получение списка групп --------------------------------------
 def get_groups(region):
     """Fetches group names and links for a given region."""
     try:

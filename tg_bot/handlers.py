@@ -51,7 +51,7 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
     dp.callback_query.register(handle_start, F.data == "start")
-    dp.callback_query.register(handle_animal_type, F.data.startswith == 'animal_')
+    dp.callback_query.register(handle_animal_type, F.data.in_({"dog", "cat"}))
 
 
 @router.message(Command(commands=['start']))
@@ -69,8 +69,9 @@ async def send_welcome(message: types.Message, state: FSMContext):
         await state.set_state(Form.region)
 
 
-@router.callback_query(F.data.startswith('animal_'))
+@router.callback_query(F.data.in_({"dog", "cat"}))
 async def handle_animal_type(callback_query: CallbackQuery, state: FSMContext):
+        logger.info("handle_animal_type called")
         animal_type = callback_query.data.split('_')[1]
         logger.info(f"Animal type selected by {callback_query.from_user.id}: {animal_type}")
         await state.update_data(animal_type=animal_type)

@@ -56,8 +56,8 @@ def get_more_results_markup():
 
 def get_animal_type_markup():
     builder = InlineKeyboardBuilder()
-    builder.button(text="🐶", callback_data="animal_dog")
-    builder.button(text="🐱", callback_data="animal_cat")
+    builder.button(text="🐶", callback_data="dog")
+    builder.button(text="🐱", callback_data="cat")
     builder.adjust(2)
     return builder.as_markup()
 

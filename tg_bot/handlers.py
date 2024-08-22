@@ -138,9 +138,10 @@ async def handle_animal_type(callback_query: CallbackQuery, state: FSMContext):
     """Обрабатывает выбор типа животного (собака или кошка) пользователем."""
     logger.info("handle_animal_type called")
     animal_type = callback_query.data
+    animal_emoji = {"dog" : "🐶", "cat" : "🐱"}
     logger.info(f"Animal type selected by {callback_query.from_user.id}: {animal_type}")
     await state.update_data(animal_type=animal_type)
-    await callback_query.message.edit_text(f"Вы выбрали {animal_type}. Теперь отправьте фото животного.")
+    await callback_query.message.edit_text(f"Вы выбрали {animal_emoji[animal_type]}. Теперь отправьте фото животного.")
     await state.set_state(Form.photo)
 
 

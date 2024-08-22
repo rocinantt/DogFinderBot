@@ -51,7 +51,7 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
     dp.callback_query.register(handle_start, F.data == "start")
-    dp.callback_query.register(handle_animal_type, F.data == 'animal')
+    dp.callback_query.register(handle_animal_type, F.data == 'animal_')
 
 
 @router.message(Command(commands=['start']))
@@ -60,7 +60,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await message.answer(
-            f"Привет! Ваш текущий регион: {user_region}. Какое животное Вы ищете?",
+            f"Привет!\nВаш текущий регион: {user_region}.\nКакое животное Вы ищете?",
             reply_markup=get_animal_type_markup())
         await state.set_state(Form.animal_type)
     else:

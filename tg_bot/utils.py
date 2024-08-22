@@ -74,7 +74,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
 
 # Send results to the user
 async def send_results(message: types.Message, results, offset):
-    await message.delete()
+    #await message.delete()
     if not results:
         await message.answer("Не найдено объявлений по заданным критериям.")
         return

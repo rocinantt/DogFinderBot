@@ -43,18 +43,13 @@ def save_user_region(user_id, region):
 
 # ----------------------- Получение данных из бд --------------------------------------
 def get_regions():
-    """Fetches all unique regions and count of posts for a specific animal type."""
+    """Fetches all unique regions from the vk_groups table."""
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
-            cursor.execute("""
-                SELECT region, COUNT(*)
-                FROM vk_posts
-                GROUP BY region
-                ORDER BY COUNT(*) DESC
-            """, (animal_type,))
+            cursor.execute("SELECT DISTINCT region FROM vk_groups")
             regions = cursor.fetchall()
-            return [(region[0], region[1]) for region in regions]
+            return [region[0] for region in regions]
     except psycopg2.Error as e:
         logger.error(f"Error fetching regions: {e}")
         return []

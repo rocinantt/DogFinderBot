@@ -85,6 +85,8 @@ async def send_results(message: types.Message, results, offset):
         """
         await message.answer(text, parse_mode=ParseMode.HTML)
 
+    await message.edit_reply_markup(reply_markup=None)
+
     if len(results) > 0:
         await message.answer('Не нашли нужный пост?', reply_markup=get_more_results_markup())
     else:

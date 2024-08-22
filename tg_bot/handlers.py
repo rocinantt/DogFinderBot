@@ -1,19 +1,28 @@
 #handlers.py
 import logging
 import asyncio
+
 from aiogram import types, F, Dispatcher, Router
-from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
 from aiogram.filters import Command
 from aiogram.enums import ParseMode
-from aiogram.types import CallbackQuery
-from keyboards import get_regions_markup, get_days_markup, get_areas_markup, get_districts_markup
-from utils import load_faq, search_similar_posts, send_results
+
+
 from database import get_user_region, save_user_region, get_groups, get_districts
+from utils import load_faq, search_similar_posts, send_results
 from config import logger
+from keyboards import (get_regions_markup,
+                       get_days_markup,
+                       get_areas_markup,
+                       get_districts_markup,
+                       get_animal_type_markup,
+                       start_again_markup)
+
+
 
 router = Router()
-
 
 class Form(StatesGroup):
     photo = State()
@@ -21,6 +30,7 @@ class Form(StatesGroup):
     area = State()
     district = State()
     days = State()
+    animal_type = State()
 
 
 def register_handlers(dp: Dispatcher):
@@ -41,6 +51,8 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(custom_days, F.data == "custom_days")
     dp.callback_query.register(handle_more_results, F.data == "more_results")
     dp.callback_query.register(handle_start, F.data == "start")
+    dp.callback_query.register(handle_animal_type, F.data == 'animal')
+
 
 @router.message(Command(commands=['start']))
 async def send_welcome(message: types.Message, state: FSMContext):
@@ -48,13 +60,22 @@ async def send_welcome(message: types.Message, state: FSMContext):
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await message.answer(
-            f"Привет! Ваш текущий регион: {user_region}. Отправьте мне фото найденной Вами собаки, и я помогу найти похожие объявления о пропавших.",
-            reply_markup=types.ReplyKeyboardRemove())
-        await state.set_state(Form.photo)
+            f"Привет! Ваш текущий регион: {user_region}. Какое животное Вы ищете?",
+            reply_markup=get_animal_type_markup())
+        await state.set_state(Form.animal_type)
     else:
-        logging.info(f"Пользователь {message.from_user.id} начал пользоваться ботом")
+        logging.info(f"Пользователь {message.from_user.id} начал пользоваться ботом.")
         await message.answer("Привет! Я DogFinderBot. Для начала выберите регион.", reply_markup=get_regions_markup())
         await state.set_state(Form.region)
+
+
+@router.callback_query(F.data.startswith('animal_'))
+async def handle_animal_type(callback_query: CallbackQuery, state: FSMContext):
+        animal_type = callback_query.data.split('_')[1]
+        logger.info(f"Animal type selected by {callback_query.from_user.id}: {animal_type}")
+        await state.update_data(animal_type=animal_type)
+        await callback_query.message.edit_text(f"Вы выбрали {animal_type}. Теперь отправьте фото животного.")
+        await state.set_state(Form.photo)
 
 
 @router.message(Command(commands=['faq']))
@@ -74,8 +95,8 @@ async def handle_region(callback_query: CallbackQuery, state: FSMContext):
     region = callback_query.data.split("_")[1]
     logger.info(f"Region selected by {callback_query.from_user.id}: {region}")
     save_user_region(callback_query.from_user.id, region)
-    await callback_query.message.edit_text(f"Вы выбрали регион {region}. Теперь отправьте фото найденной собаки.")
-    await state.set_state(Form.photo)
+    await callback_query.message.edit_text(f"Вы выбрали регион {region}. Какое животное вы ищете?")
+    await state.set_state(Form.animal_type)
 
 
 @router.message(Form.photo, F.content_type == types.ContentType.PHOTO)
@@ -85,7 +106,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     user_region = get_user_region(message.from_user.id)
     if user_region:
         await state.update_data(region=user_region)
-        await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\nНерасgределенные - среди постов без указания адреса.",
+        await message.answer("Фото получено, выберите район поиска. \nПропустить - поиск по всему региону.\nНераспределенные - среди постов без указания адреса.",
                              reply_markup=get_areas_markup(user_region))
         await state.set_state(Form.area)
     else:
@@ -139,7 +160,7 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
     logger.info(f"Days input by {callback_query.from_user.id}: {days}")
     await state.update_data(days=days)
     await callback_query.message.edit_text(
-        "Начинаю поиск объявлений о пропавших собаках за выбранный период. Пожалуйста, подождите.")
+        "Начинаю поиск объявлений о пропавших животных за выбранный период. Пожалуйста, подождите.")
     await search_similar_posts(callback_query.message, state)
 
 
@@ -188,7 +209,8 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
         await send_results(callback_query.message, results[offset:offset+5], offset)
         await state.update_data(offset=offset+5)  # Обновляем смещение
     else:
-        await callback_query.message.answer("Больше постов нет. Перейдите в меню чтобы начать сначала")
+        await callback_query.message.answer("Больше постов нет. Перейдите в меню чтобы начать сначала",
+                                            reply_markup=start_again_markup())
 
 @router.callback_query(F.data == 'start')
 async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):

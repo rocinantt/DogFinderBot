@@ -53,3 +53,15 @@ def get_more_results_markup():
     builder.button(text="Начать заново", callback_data="start")
     builder.adjust(2)
     return builder.as_markup()
+
+def get_animal_type_markup():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🐶", callback_data="animal_dog")
+    builder.button(text="🐱", callback_data="animal_cat")
+    builder.adjust(2)
+    return builder.as_markup()
+
+def start_again_markup():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Начать заново", callback_date="start")
+    return builder.as_markup()

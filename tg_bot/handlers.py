@@ -205,19 +205,21 @@ async def handle_more_results(callback_query: types.CallbackQuery, state: FSMCon
     data = await state.get_data()
     results = data.get('results', [])
     offset = data.get('offset', 5)
+    await callback_query.message.delete()
 
     if offset < len(results):
         await send_results(callback_query.message, results[offset:offset+5], offset)
         await state.update_data(offset=offset+5)
     else:
-        await callback_query.message.answer("Больше постов нет. Перейдите в меню чтобы начать сначала",
+        await callback_query.message.answer("Больше постов нет, но Вы можете начать заново.",
                                             reply_markup=start_again_markup())
 
 @router.callback_query(F.data == 'start')
 async def handle_start(callback_query: types.CallbackQuery, state: FSMContext):
     """Handles the start command initiated by inline keyboard."""
     await state.clear()
-    await callback_query.message.edit_reply_markup(reply_markup=None)
+    await callback_query.message.delete()
+    #await callback_query.message.edit_reply_markup(reply_markup=None)
     user_region = get_user_region(callback_query.from_user.id)
     if user_region:
         await callback_query.message.answer(

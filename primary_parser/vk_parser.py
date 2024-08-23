@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 from tqdm import tqdm
 import vk_api
 from config import vk, logger
-from utils import filter_other_animal
+from utils import determine_animal_type, normalize_text
+
+
 def get_posts(group_id, count=100, offset=0):
     """Retrieve posts from a VK group."""
     try:
@@ -13,6 +15,7 @@ def get_posts(group_id, count=100, offset=0):
     except vk_api.exceptions.ApiError as e:
         logger.error(f"Error fetching posts for group {group_id}: {e}")
         return []
+
 
 def get_group_info(group_id):
     """Retrieve information about a VK group."""
@@ -104,10 +107,6 @@ def parse_all_posts(group_id, n_days=100, include_reposts=False):
                         post = original_post
                     else:
                         continue
-
-                # Проверка текста поста на наличие исключенных слов
-                if filter_other_animal(post.get('text', '')):
-                    continue
 
                 post_data = format_post_data(post, group_id)
                 if post_data:

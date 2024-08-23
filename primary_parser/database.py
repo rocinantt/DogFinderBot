@@ -4,39 +4,40 @@ from psycopg2.extras import Json
 from config import DATABASE_URL, logger
 from image_processing import process_post
 from tqdm import tqdm
-from utils import find_all_locations, spb_district_dict, lo_dict
+from utils import find_all_locations, determine_animal_type, normalize_text
 
-def save_posts_to_db(posts, default_region, default_area):
-    """Save posts to the database."""
+
+def save_posts_to_db(posts, default_region, default_area, default_district):
+    """Сохраняет посты в базу данных."""
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    for post in tqdm(posts, desc='Extracting features and saving posts to the database', total=len(posts)):
+    for post in tqdm(posts, desc='Извлечение признаков и сохранение постов в базу данных', total=len(posts)):
         try:
-            #Извлечение признаков изображения
+            # Извлечение признаков изображения
             features = process_post(post)
 
-            #Извлечение локаций из текста
+            # Нормализация текста поста
             text = post.get('text', '')
-            locations = find_all_locations(text)
+            normalized_text = normalize_text(text)
 
-            #Если локации в тексте не найдены
-            if not locations:
-                locations = [(default_region, default_area, '')]
+            # Извлечение локаций и типа животного из нормализованного текста
+            locations = find_all_locations(normalized_text, default_region, default_area, default_district)
+            animal_type = determine_animal_type(normalized_text)
 
-            #Сохраняем пост для каждой найденной локации
+            # Сохранение поста для каждой найденной локации
             for region, area, district in locations:
                 cursor.execute("""
-                    INSERT INTO vk_posts (post_id, group_id, date, post_link, features, region, area, district)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    """, (post['post_id'], post['group_id'], post['date'], post['post_link'],
-                          Json(features), region, area, district))
+                    INSERT INTO vk_posts (post_id, group_id, date, post_link, features, region, area, district, animal_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (post['post_id'], post['group_id'], post['date'], post['post_link'],
+                      Json(features), region, area, district, animal_type))
         except Exception as e:
-            logger.error(f"Error processing post {post['post_id']}: {e}")
+            logger.error(f"Ошибка при обработке поста {post['post_id']}: {e}")
             continue
 
     conn.commit()
-    logger.info(f"Added {len(posts)} posts to the database for group {posts[0]['group_id']}")
+    logger.info(f"Добавлено {len(posts)} постов в базу данных для группы {posts[0]['group_id']}")
     cursor.close()
     conn.close()
 
@@ -67,4 +68,3 @@ def add_group_to_db(group_id, region, area, group_name, group_link, include_repo
     cursor.close()
     conn.close()
     logger.info(f"Group {group_name} added to the database")
-

@@ -179,7 +179,7 @@ async def handle_area(callback_query: CallbackQuery, state: FSMContext):
     districts = get_districts(area, animal_type)  # Передаем тип животного
     if districts:
         await callback_query.message.edit_text("Вы можете сузить область поиска или нажать 'Пропустить'.",
-                                               reply_markup=get_districts_markup(districts))
+                                               reply_markup=get_districts_markup(area, animal_type))
         await state.set_state(Form.district)
     else:
         await callback_query.message.edit_text(

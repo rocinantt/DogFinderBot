@@ -36,7 +36,8 @@ docker exec -i containers_db_1 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-EOS
         features JSONB,
         region VARCHAR(255),
         area VARCHAR(255),
-        district VARCHAR(255)
+        district VARCHAR(255),
+        animal_type VARCHAR(10)
     );
 
     -- Индексы для vk_groups
@@ -56,7 +57,7 @@ docker exec -i containers_db_1 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" <<-EOS
     CREATE INDEX idx_vk_posts_region ON vk_posts(region);
     CREATE INDEX idx_vk_posts_area ON vk_posts(area);
     CREATE INDEX idx_vk_posts_district ON vk_posts(district);
+    CREATE INDEX idx_vk_posts_animal_type ON vk_posts(animal_type);
 
 EOSQL
-
 

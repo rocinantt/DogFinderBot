@@ -26,7 +26,7 @@ def get_areas_markup(region, animal_type):
 
     return builder.as_markup()
 
-def get_districts_markup(districts, animal_type):
+def get_districts_markup(area, animal_type):
     """Генерирует клавиатуру с выбором районов."""
     builder = InlineKeyboardBuilder()
     districts = get_districts(area, animal_type)

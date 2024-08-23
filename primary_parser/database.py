@@ -26,7 +26,7 @@ def save_posts_to_db(posts, default_region, default_area, default_district):
             locations = find_all_locations(normalized_text, default_region, default_area, default_district)
             logger.info(f'локации извлечены, {locations}')
             animal_type = determine_animal_type(normalized_text)
-            logger.info(f'тип животногоопределен, {locations}')
+            logger.info(f'тип животногоопределен, {animal_type}')
 
             # Сохранение поста для каждой найденной локации
             for region, area, district in locations:

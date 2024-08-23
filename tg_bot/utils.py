@@ -98,7 +98,7 @@ async def send_results(message: types.Message, results, offset):
         <b>#{index}  {result['date']}</b>
 {result['post_link']}
         """
-        await message.answer(text, parse_mode=types.ParseMode.HTML)
+        await message.answer(text, parse_mode=ParseMode.HTML)
 
     if len(results) > 0:
         await message.answer('Не нашли нужный пост?', reply_markup=get_more_results_markup())

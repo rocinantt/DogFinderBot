@@ -3,6 +3,7 @@ import logging
 from dotenv import load_dotenv
 
 # Настройка логирования
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Загрузка переменных окружения из файла .env

@@ -1,13 +1,16 @@
-#database.py
 import psycopg2
 from psycopg2.extras import DictCursor
 from config import DATABASE_URL, logger
 
 
-# ----------------------- Обработка региона пользователя --------------------------------------
-
 def get_user_region(user_id):
-    """Fetches the region of a user by user ID."""
+    """
+    Получает регион пользователя по его ID.
+
+    :param user_id: ID пользователя
+    :return: регион пользователя или None, если не найдено
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -15,7 +18,7 @@ def get_user_region(user_id):
             result = cursor.fetchone()
             return result[0] if result else None
     except psycopg2.Error as e:
-        logger.error(f"Error fetching user region: {e}")
+        logger.error(f"Ошибка при получении региона пользователя: {e}")
         return None
     finally:
         if conn:
@@ -23,7 +26,13 @@ def get_user_region(user_id):
 
 
 def save_user_region(user_id, region):
-    """Saves or updates the region of a user."""
+    """
+    Сохраняет или обновляет регион пользователя.
+
+    :param user_id: ID пользователя
+    :param region: регион, который нужно сохранить
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -35,15 +44,19 @@ def save_user_region(user_id, region):
     except psycopg2.Error as e:
         if conn:
             conn.rollback()
-        logger.error(f"Error saving user region: {e}")
+        logger.error(f"Ошибка при сохранении региона пользователя: {e}")
     finally:
         if conn:
             conn.close()
 
 
-# ----------------------- Получение данных из бд --------------------------------------
 def get_regions():
-    """Fetches all unique regions from the vk_groups table."""
+    """
+    Получает все уникальные регионы из таблицы vk_groups.
+
+    :return: список регионов
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -51,7 +64,7 @@ def get_regions():
             regions = cursor.fetchall()
             return [region[0] for region in regions]
     except psycopg2.Error as e:
-        logger.error(f"Error fetching regions: {e}")
+        logger.error(f"Ошибка при получении списка регионов: {e}")
         return []
     finally:
         if conn:
@@ -59,7 +72,14 @@ def get_regions():
 
 
 def get_areas(region, animal_type):
-    """Fetches all unique areas and count of posts for a specific region and animal type."""
+    """
+    Получает все уникальные области и количество постов для конкретного региона и типа животного.
+
+    :param region: регион
+    :param animal_type: тип животного (собака или кошка)
+    :return: список областей и количество постов
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -73,7 +93,7 @@ def get_areas(region, animal_type):
             areas = cursor.fetchall()
             return areas
     except psycopg2.Error as e:
-        logger.error(f"Error fetching areas: {e}")
+        logger.error(f"Ошибка при получении областей: {e}")
         return []
     finally:
         if conn:
@@ -81,7 +101,14 @@ def get_areas(region, animal_type):
 
 
 def get_districts(area, animal_type):
-    """Fetches all unique districts and count of posts for a specific area and animal type."""
+    """
+    Получает все уникальные районы и количество постов для конкретной области и типа животного.
+
+    :param area: область
+    :param animal_type: тип животного (собака или кошка)
+    :return: список районов и количество постов
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -95,16 +122,21 @@ def get_districts(area, animal_type):
             districts = cursor.fetchall()
             return districts
     except psycopg2.Error as e:
-        logger.error(f"Error fetching districts: {e}")
+        logger.error(f"Ошибка при получении районов: {e}")
         return []
     finally:
         if conn:
             conn.close()
 
 
-# ----------------------- Получение списка групп --------------------------------------
 def get_groups(region):
-    """Fetches group names and links for a given region."""
+    """
+    Получает названия и ссылки групп для конкретного региона.
+
+    :param region: регион
+    :return: список групп с названиями и ссылками
+    """
+    conn = None
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=DictCursor)
         with conn.cursor() as cursor:
@@ -112,7 +144,7 @@ def get_groups(region):
             groups = cursor.fetchall()
             return [{"group_name": group[0], "group_link": group[1]} for group in groups]
     except psycopg2.Error as e:
-        logger.error(f"Error fetching groups: {e}")
+        logger.error(f"Ошибка при получении групп: {e}")
         return []
     finally:
         if conn:

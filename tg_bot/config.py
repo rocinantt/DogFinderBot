@@ -1,23 +1,24 @@
-#config.py
 import os
 import logging
 from dotenv import load_dotenv
+
+# Настройка логирования
 logger = logging.getLogger(__name__)
 
+# Загрузка переменных окружения из файла .env
 load_dotenv()
 
+# Параметры API и базы данных
 API_TOKEN = os.getenv("TELEGRAM_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Проверка загрузки переменных окружения
 if not API_TOKEN:
-    logger.error("TELEGRAM_TOKEN not found in environment variables")
+    logger.error("Переменная окружения TELEGRAM_TOKEN не найдена.")
 else:
-    logger.info("TELEGRAM_TOKEN loaded successfully.")
+    logger.info("TELEGRAM_TOKEN успешно загружен.")
 
 if not DATABASE_URL:
-    logger.error("DATABASE_URL not found in environment variables")
+    logger.error("Переменная окружения DATABASE_URL не найдена.")
 else:
-    logger.info("DATABASE_URL loaded successfully")
-
-
+    logger.info("DATABASE_URL успешно загружен.")

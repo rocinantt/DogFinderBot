@@ -1,18 +1,27 @@
-#keyboards.py
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from database import get_regions, get_areas, get_districts
 
+
 def get_regions_markup():
+    """
+    Генерирует клавиатуру с выбором региона.
+    """
     builder = InlineKeyboardBuilder()
     for region in get_regions():
         builder.button(text=region, callback_data=f"region_{region}")
     builder.adjust(2)
     return builder.as_markup()
 
+
 def get_areas_markup(region, animal_type):
-    """Генерирует клавиатуру с выбором area."""
+    """
+    Генерирует клавиатуру с выбором области.
+
+    :param region: регион
+    :param animal_type: тип животного (собака или кошка)
+    :return: инлайн-клавиатура
+    """
     builder = InlineKeyboardBuilder()
     areas = get_areas(region, animal_type)
 
@@ -26,8 +35,15 @@ def get_areas_markup(region, animal_type):
 
     return builder.as_markup()
 
+
 def get_districts_markup(area, animal_type):
-    """Генерирует клавиатуру с выбором районов."""
+    """
+    Генерирует клавиатуру с выбором района.
+
+    :param area: область
+    :param animal_type: тип животного (собака или кошка)
+    :return: инлайн-клавиатура
+    """
     builder = InlineKeyboardBuilder()
     districts = get_districts(area, animal_type)
 
@@ -40,7 +56,13 @@ def get_districts_markup(area, animal_type):
 
     return builder.as_markup()
 
+
 def get_days_markup():
+    """
+    Генерирует клавиатуру с выбором периода в днях.
+
+    :return: инлайн-клавиатура
+    """
     days_options = [1, 3, 7, 10, 20, 30]
     builder = InlineKeyboardBuilder()
     for days in days_options:
@@ -48,21 +70,39 @@ def get_days_markup():
         builder.adjust(2)
     return builder.as_markup()
 
+
 def get_more_results_markup():
+    """
+    Генерирует клавиатуру с кнопками для показа дополнительных результатов или начала заново.
+
+    :return: инлайн-клавиатура
+    """
     builder = InlineKeyboardBuilder()
     builder.button(text="Показать еще", callback_data="more_results")
     builder.button(text="Начать заново", callback_data="start")
     builder.adjust(2)
     return builder.as_markup()
 
+
 def get_animal_type_markup():
+    """
+    Генерирует клавиатуру с выбором типа животного (собака или кошка).
+
+    :return: инлайн-клавиатура
+    """
     builder = InlineKeyboardBuilder()
     builder.button(text="🐶", callback_data="dog")
     builder.button(text="🐱", callback_data="cat")
     builder.adjust(2)
     return builder.as_markup()
 
+
 def start_again_markup():
+    """
+    Генерирует клавиатуру для начала поиска заново.
+
+    :return: инлайн-клавиатура
+    """
     builder = InlineKeyboardBuilder()
     builder.button(text="Начать заново", callback_data="start")
     return builder.as_markup()

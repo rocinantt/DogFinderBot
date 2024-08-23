@@ -31,6 +31,9 @@ def save_posts_to_db(posts, default_region, default_area, default_district):
                 try:
                     # Извлечение признаков изображения
                     features = process_post(post)
+                    if not features:
+                        logger.error(f"Пропуск поста {post['post_link']} из-за отсутствия признаков.")
+                        continue  # Пропускаем пост, если признаки не были извлечены
                     # Нормализация текста поста
                     text = post.get('text', '')
                     normalized_text = normalize_text(text)

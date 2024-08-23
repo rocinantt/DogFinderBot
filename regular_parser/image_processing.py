@@ -59,7 +59,13 @@ def process_post(post):
     try:
         for photo_url in post['photos']:
             image_tensor = load_image(photo_url)
+            if image_tensor is None:
+                logger.error(f"Пропуск изображения по URL {photo_url} из-за ошибки загрузки.")
+                continue
             features = extract_features_batch(image_tensor).squeeze().cpu().tolist()
+            if len(features) == 0:
+                logger.error(f"Пропуск изображения по URL {photo_url} из-за ошибки извлечения признаков.")
+                continue
             post_features.append(features)
         return post_features
     except Exception as e:

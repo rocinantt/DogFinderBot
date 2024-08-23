@@ -1,29 +1,23 @@
-#main.py
 import os
 import json
 import logging
 from datetime import datetime, timedelta
-from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List
 
 import asyncpg
 import aiohttp
 import numpy as np
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
 
-from config import DATABASE_URL
-from model import load_image, extract_features, processor, model
 from posts import get_posts
+from config import DATABASE_URL, logger
+from model import load_image, extract_features, processor, model
 from similarity import calculate_similarity, get_top_n_similar_posts
 
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Initialize the FastAPI application
+# Инициализация FastAPI приложения
 app = FastAPI()
 executor = ThreadPoolExecutor(max_workers=4)
 
@@ -37,27 +31,53 @@ class ImageRequest(BaseModel):
     unassigned: bool = False
 
 
-async def find_similar_images(image_url: str, region: str, days: int, animal_type: str, area: Optional[str] = None,
-                              district: Optional[str] = None, unassigned: bool = False):
-    """Find similar images in the database."""
+async def find_similar_images(image_url: str, region: str, days: int, animal_type: str,
+                              area: Optional[str] = None, district: Optional[str] = None,
+                              unassigned: bool = False):
+    """
+    Находит похожие изображения в базе данных.
 
-    posts = await get_posts(region, days, animal_type, area, district, unassigned)
-    logger.info(f"Number of posts retrieved: {len(posts)}")
-    query_image_tensor = await load_image(image_url)
-    if query_image_tensor is None:
-        logger.error("Failed to load image for comparison.")
-        return []
+    :param image_url: URL изображения для поиска
+    :param region: регион поиска
+    :param days: количество дней для поиска
+    :param animal_type: тип животного (собака или кошка)
+    :param area: область поиска (опционально)
+    :param district: район поиска (опционально)
+    :param unassigned: флаг, указывающий на нераспределенные области (по умолчанию False)
+    :return: список похожих постов
+    :rtype: List[dict]
+    """
 
-    query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
+    try:
+        posts = await get_posts(region, days, animal_type, area, district, unassigned)
+        logger.info(f"Количество найденных постов: {len(posts)}")
 
-    similar_posts = get_top_n_similar_posts(query_features,
-                                            [(post['post_link'], json.loads(post['features']), post['date']) for post in
-                                             posts])
-    logger.info(f"Number of similar posts found: {len(similar_posts)}")
-    return [{'post_link': post['post_link'], 'date': post['date']} for post in similar_posts]
+        query_image_tensor = await load_image(image_url)
+        if query_image_tensor is None:
+            logger.error("Не удалось загрузить изображение для сравнения.")
+            return []
+
+        query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
+        similar_posts = get_top_n_similar_posts(
+            query_features,
+            [(post['post_link'], json.loads(post['features']), post['date']) for post in posts]
+        )
+        logger.info(f"Количество найденных похожих постов: {len(similar_posts)}")
+
+        return [{'post_link': post['post_link'], 'date': post['date']} for post in similar_posts]
+    except Exception as e:
+        logger.error(f"Ошибка при поиске похожих изображений: {e}")
+        raise HTTPException(status_code=500, detail="Произошла ошибка при обработке запроса.")
+
 
 @app.post('/compare')
 async def compare(request: ImageRequest):
+    """
+    Эндпоинт для сравнения изображений.
+
+    :param request: запрос с параметрами изображения и фильтрации
+    :return: список найденных похожих изображений
+    """
     results = await find_similar_images(
         image_url=request.image_url,
         region=request.region,

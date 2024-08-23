@@ -1,23 +1,23 @@
 import os
 import torch
 import aiohttp
-import logging
 from PIL import Image
 from io import BytesIO
 from transformers import ViTImageProcessor, ViTForImageClassification
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from config import logger
 
-# Initialize model and processor
+
+# Инициализация модели и процессора
 model_path = '/app/models'
 processor = ViTImageProcessor.from_pretrained(model_path)
 model = ViTForImageClassification.from_pretrained(model_path)
 model.classifier = torch.nn.Identity()
 
+
 async def load_image(url: str):
-    """Load an image from a URL."""
+    """Загружает изображение по URL и подготавливает его для модели."""
+
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -26,11 +26,16 @@ async def load_image(url: str):
                 inputs = processor(images=image, return_tensors="pt")
                 return inputs['pixel_values']
     except aiohttp.ClientError as e:
-        logger.error(f"Error loading image from URL {url}: {e}")
+        logger.error(f"Ошибка загрузки изображения по URL {url}: {e}")
         return None
 
 def extract_features(image_tensors):
-    """Extract features from an image tensor."""
-    with torch.no_grad():
-        outputs = model(image_tensors)
-    return outputs.logits
+    """Извлекает признаки из тензора изображения с помощью модели."""
+
+    try:
+        with torch.no_grad():
+            outputs = model(image_tensors)
+        return outputs.logits
+    except Exception as e:
+        logger.error(f"Ошибка извлечения признаков из изображения: {e}")
+        raise

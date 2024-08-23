@@ -1,14 +1,14 @@
 FROM python:3.10-slim
 
-# Set the working directory
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
+# Копируем файл зависимостей и устанавливаем зависимости
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# Копируем остальной код приложения
 COPY . .
 
-# Set the default command to run the application
+# Устанавливаем команду по умолчанию для запуска приложения
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]

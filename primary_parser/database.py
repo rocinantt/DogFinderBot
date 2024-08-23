@@ -16,14 +16,17 @@ def save_posts_to_db(posts, default_region, default_area, default_district):
         try:
             # Извлечение признаков изображения
             features = process_post(post)
-
+            logger.info(f'признаки извлечены, {len(features)}')
             # Нормализация текста поста
             text = post.get('text', '')
             normalized_text = normalize_text(text)
+            logger.info(f'текст обработан, {normalized_text}')
 
             # Извлечение локаций и типа животного из нормализованного текста
             locations = find_all_locations(normalized_text, default_region, default_area, default_district)
+            logger.info(f'локации извлечены, {locations}')
             animal_type = determine_animal_type(normalized_text)
+            logger.info(f'тип животногоопределен, {locations}')
 
             # Сохранение поста для каждой найденной локации
             for region, area, district in locations:

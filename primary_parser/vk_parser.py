@@ -1,67 +1,79 @@
-#vk_parser.py
 from datetime import datetime, timedelta
 from tqdm import tqdm
 import vk_api
 from config import vk, logger
-from utils import determine_animal_type, normalize_text
-
 
 def get_posts(group_id, count=100, offset=0):
-    """Retrieve posts from a VK group."""
+    """
+    Извлекает посты из группы VK.
+
+    :param group_id: ID группы
+    :param count: количество постов для извлечения за один запрос
+    :param offset: смещение для извлечения постов
+    :return: список постов
+    """
     try:
         response = vk.wall.get(owner_id=group_id, count=count, offset=offset)
-        logger.info(f"Received {len(response['items'])} posts")
+        logger.info(f"Получено {len(response['items'])} постов из группы {group_id}")
         return response['items']
     except vk_api.exceptions.ApiError as e:
-        logger.error(f"Error fetching posts for group {group_id}: {e}")
+        logger.error(f"Ошибка при получении постов для группы {group_id}: {e}")
         return []
 
-
 def get_group_info(group_id):
-    """Retrieve information about a VK group."""
+    """
+    Извлекает информацию о группе VK.
+
+    :param group_id: ID группы
+    :return: название группы и ссылка на группу
+    """
     try:
         response = vk.groups.getById(group_id=abs(group_id))
         group_info = response[0]
         return group_info['name'], f"https://vk.com/{group_info['screen_name']}"
     except vk_api.exceptions.ApiError as e:
-        logger.error(f"Error fetching group info: {e}")
+        logger.error(f"Ошибка при получении информации о группе {group_id}: {e}")
         return None, None
 
-
 def extract_photos_from_post(post):
-    """Extract photo URLs from a post."""
+    """
+    Извлекает URL-адреса фотографий из поста.
+
+    :param post: пост VK
+    :return: список URL фотографий или None
+    """
     photos = []
-    if 'attachments' in post:
-        for attachment in post['attachments']:
-            if attachment['type'] == 'photo':
-                photo_sizes = attachment['photo']['sizes']
+    try:
+        if 'attachments' in post:
+            for attachment in post['attachments']:
+                if attachment['type'] == 'photo':
+                    photo_sizes = attachment['photo']['sizes']
+                    preferred_types = {'r': None, 'x': None, 'y': None}
+                    for size in photo_sizes:
+                        if size['type'] in preferred_types:
+                            preferred_types[size['type']] = size['url']
+                    selected_photo = next((preferred_types[ptype] for ptype in ['r', 'x', 'y'] if preferred_types[ptype]),
+                                          None)
+                    if selected_photo and selected_photo not in photos:
+                        photos.append(selected_photo)
+                    else:
+                        max_size_photo = max(photo_sizes, key=lambda size: size['width'])
+                        if max_size_photo['url'] not in photos:
+                            photos.append(max_size_photo['url'])
 
-                # Словарь, чтобы найти самое предпочтительное изображение
-                preferred_types = {'r': None, 'x': None, 'y': None}
-
-                # Поиск всех типов изображений
-                for size in photo_sizes:
-                    if size['type'] in preferred_types:
-                        preferred_types[size['type']] = size['url']
-
-                # Выбираем первый доступный из списка предпочтительных типов
-                selected_photo = next((preferred_types[ptype] for ptype in ['r', 'x', 'y'] if preferred_types[ptype]),
-                                      None)
-
-                # Если предпочтительный тип найден
-                if selected_photo and selected_photo not in photos:
-                    photos.append(selected_photo)
-                else:
-                    # Если ни один из предпочтительных типов не найден, выбираем максимальный размер
-                    max_size_photo = max(photo_sizes, key=lambda size: size['width'])
-                    if max_size_photo['url'] not in photos:
-                        photos.append(max_size_photo['url'])
-
-    return photos if photos else None
-
+        return photos if photos else None
+    except Exception as e:
+        logger.error(f"Ошибка при извлечении фотографий из поста {post['id']}: {e}")
+        return None
 
 def format_post_data(post, group_id):
-    """Format post data for database insertion."""
+    """
+    Форматирует данные поста для вставки в базу данных.
+
+    :param post: пост VK
+    :param group_id: ID группы
+    :return: отформатированные данные поста или None
+    """
     photos = extract_photos_from_post(post)
     if photos is None or len(photos) > 4:
         return None
@@ -72,17 +84,24 @@ def format_post_data(post, group_id):
         "photos": photos,
         "post_link": f"https://vk.com/wall{post['owner_id']}_{post['id']}",
         "group_id": group_id,
-        'text': post['text']
+        'text': post.get('text', '')
     }
     return post_data
 
 def parse_all_posts(group_id, n_days=100, include_reposts=False):
-    """Parse all posts from a VK group within a given number of days."""
+    """
+    Парсит все посты из группы VK за заданное количество дней.
+
+    :param group_id: ID группы VK
+    :param n_days: количество дней для парсинга постов
+    :param include_reposts: включать ли репосты
+    :return: список отформатированных данных постов
+    """
     all_posts = []
     offset = 0
     n_days_ago = datetime.now() - timedelta(days=n_days)
 
-    with tqdm(desc="Parsing posts", unit="posts", leave=False) as pbar:
+    with tqdm(desc="Парсинг постов", unit="постов", leave=False) as pbar:
         while True:
             posts = get_posts(group_id, count=100, offset=offset)
             if not posts:
@@ -92,13 +111,12 @@ def parse_all_posts(group_id, n_days=100, include_reposts=False):
                 post_date = datetime.utcfromtimestamp(post['date'])
 
                 if 'is_pinned' in post and post['is_pinned']:
-                    logger.info(f"Skipping pinned post with id {post['id']}")
+                    logger.info(f"Пропуск закрепленного поста с id {post['id']}")
                     continue
 
                 if post_date < n_days_ago:
-                    logger.info("Ending collection: Post date older than the limit.")
+                    logger.info("Завершение сбора: Дата поста старше указанного предела.")
                     return all_posts
-
 
                 if 'copy_history' in post:
                     if include_reposts:
@@ -114,8 +132,8 @@ def parse_all_posts(group_id, n_days=100, include_reposts=False):
 
             offset += 100
             pbar.update(100)
-    post_cache = {}
 
+    post_cache = {}
     for post in all_posts:
         photo_links = tuple(post['photos'])
         if photo_links not in post_cache or post_cache[photo_links]['date'] < post['date']:

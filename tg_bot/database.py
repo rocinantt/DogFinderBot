@@ -74,7 +74,14 @@ def get_regions():
             cursor.execute("SELECT DISTINCT region FROM vk_groups")
             regions = cursor.fetchall()
             logger.info('Загружено из DB')
-            return [region[0] for region in regions]
+            regions_list = [region[0] for region in regions]
+
+            # Сохранение в Redis
+            if redis_client:
+                redis_client.setex(cache_key, 3600, json.dumps(regions_list))
+                logger.info('Сохранено в кэш Redis')
+
+            return regions_list
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении списка регионов: {e}")
         return []

@@ -1,4 +1,5 @@
 import os
+import redis
 import logging
 from dotenv import load_dotenv
 
@@ -23,3 +24,6 @@ if not DATABASE_URL:
     logger.error("Переменная окружения DATABASE_URL не найдена.")
 else:
     logger.info("DATABASE_URL успешно загружен.")
+
+# Подключение к Redis
+redis_client = redis.Redis(host='localhost', port=6379, db=0)

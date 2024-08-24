@@ -6,3 +6,4 @@ celery
 arq
 redis
 asyncpg
+redis

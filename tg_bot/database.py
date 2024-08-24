@@ -58,7 +58,11 @@ def get_regions():
     :return: список регионов
     """
     cache_key = "regions"
-    cached_regions = redis_client.get(cache_key)
+    cached_regions = None
+
+    if redis_client:
+        cached_regions = redis_client.get(cache_key)
+
     if cached_regions:
         logger.info('Загружено из кэша Redis')
         return json.loads(cached_regions)
@@ -87,7 +91,10 @@ def get_areas(region, animal_type):
     :return: список областей и количество постов
     """
     cache_key = f"areas:{region}:{animal_type}"
-    cached_areas = redis_client.get(cache_key)
+    cached_areas = None
+
+    if redis_client:
+        cached_areas = redis_client.get(cache_key)
 
     if cached_areas:
         logger.info('Загружено из кэша Redis')
@@ -124,7 +131,10 @@ def get_districts(area, animal_type):
     """
 
     cache_key = f"districts:{area}:{animal_type}"
-    cached_districts = redis_client.get(cache_key)
+    cached_districts = None
+
+    if redis_client:
+        cached_districts = redis_client.get(cache_key)
 
     if cached_districts:
         logger.info("Загружено из кэша Redis")

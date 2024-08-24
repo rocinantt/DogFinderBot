@@ -73,6 +73,7 @@ def get_regions():
         with conn.cursor() as cursor:
             cursor.execute("SELECT DISTINCT region FROM vk_groups")
             regions = cursor.fetchall()
+            logger.info('Загружено из DB')
             return [region[0] for region in regions]
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении списка регионов: {e}")
@@ -112,6 +113,7 @@ def get_areas(region, animal_type):
                 ORDER BY COUNT(*) DESC
             """, (region, animal_type))
             areas = cursor.fetchall()
+            logger.info('Загружено из DB')
             return areas
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении областей: {e}")
@@ -152,6 +154,7 @@ def get_districts(area, animal_type):
                 ORDER BY COUNT(*) DESC
             """, (area, animal_type))
             districts = cursor.fetchall()
+            logger.info('Загружено из DB')
             return districts
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении районов: {e}")

@@ -10,6 +10,12 @@ x-def-logging: &default-logging
 
 services:
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    <<: *default-logging
+
   loki:
     image: grafana/loki:latest
     ports:
@@ -35,6 +41,7 @@ services:
     image: grafana/promtail:latest
     volumes:
       - ./promtail-config.yml:/etc/promtail/promtail-config.yaml
+    command: -config.file=/etc/promtail/promtail-config.yaml
 
   db:
     container_name: containers_db_1

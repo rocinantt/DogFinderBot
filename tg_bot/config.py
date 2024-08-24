@@ -26,4 +26,11 @@ else:
     logger.info("DATABASE_URL успешно загружен.")
 
 # Подключение к Redis
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+try:
+    redis_client = redis.Redis(host='localhost', port=6379, db=0)
+    redis_client.ping()
+    logger.info("Успешное подключение к Redis")
+except redis.ConnectionError as e:
+    logger.error(f"Ошибка подключения к Redis: {e}")
+    redis_client = None
+

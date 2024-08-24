@@ -56,7 +56,7 @@ def save_user_region(user_id, region):
 
             # Обновляем кэш в Redis
             if redis_client:
-                redis_client.setex(cache_key, 7200, json.dumps(region))
+                redis_client.setex(cache_key, 86400, json.dumps(region))
                 logger.info(f'Кэш обновлён в Redis: user_id={user_id}, region={region}')
 
     except psycopg2.Error as e:

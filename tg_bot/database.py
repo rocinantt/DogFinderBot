@@ -121,6 +121,12 @@ def get_areas(region, animal_type):
             """, (region, animal_type))
             areas = cursor.fetchall()
             logger.info('Загружено из DB')
+
+            # Сохранение в Redis
+            if redis_client:
+                redis_client.setex(cache_key, 3600, json.dumps(areas))
+                logger.info('Сохранено в кэш Redis')
+
             return areas
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении областей: {e}")
@@ -162,6 +168,12 @@ def get_districts(area, animal_type):
             """, (area, animal_type))
             districts = cursor.fetchall()
             logger.info('Загружено из DB')
+
+            # Сохранение в Redis
+            if redis_client:
+                redis_client.setex(cache_key, 3600, json.dumps(districts))
+                logger.info('Сохранено в кэш Redis')
+
             return districts
     except psycopg2.Error as e:
         logger.error(f"Ошибка при получении районов: {e}")

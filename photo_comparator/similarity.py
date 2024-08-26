@@ -3,6 +3,7 @@ import faiss
 from time import time
 from sklearn.preprocessing import normalize
 import heapq
+from config import logger
 
 
 # Нормализуем векторы

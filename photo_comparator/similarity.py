@@ -1,5 +1,6 @@
 import numpy as np
 import faiss
+from time import time
 from sklearn.preprocessing import normalize
 import heapq
 
@@ -18,6 +19,7 @@ def create_faiss_index_for_post(post_features):
 
 # Находим самый похожий вектор внутри каждого поста
 def get_top_n_similar_posts(query_features, posts, n=50):
+    start_time = time()
     best_similarities = []
 
     # Нормализуем целевой вектор
@@ -37,6 +39,6 @@ def get_top_n_similar_posts(query_features, posts, n=50):
     similar_posts = heapq.nlargest(n, best_similarities, key=lambda x: x[0])
     # Сортируем посты
     similar_posts = sorted(similar_posts, key=lambda x: x[0], reverse=True)
-
+    logger.info(f"Время выполнения get_top_n_similar_posts: {time() - start_time:.2f} секунд")
     return [{'post_link': post_link, 'date': post_date.strftime('%d-%m-%Y')}
             for _, post_link, post_date in similar_posts]

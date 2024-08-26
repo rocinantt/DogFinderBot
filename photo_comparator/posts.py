@@ -1,6 +1,7 @@
 import asyncpg
 from datetime import datetime, timedelta
 from typing import Optional
+from time import time
 
 from database import get_db_connection
 from config import logger
@@ -20,7 +21,7 @@ async def get_posts(region: str, days: int, animal_type: str, area: Optional[str
     :return: список постов, соответствующих критериям
     :rtype: List[dict]
     """
-
+    start_time = time()
     conn = await get_db_connection()
     try:
         date_threshold = datetime.now() - timedelta(days=days)
@@ -41,8 +42,9 @@ async def get_posts(region: str, days: int, animal_type: str, area: Optional[str
             if district:
                 query += " AND district = $5"
                 params.append(district)
-
-        return await conn.fetch(query, *params)
+        posts = await conn.fetch(query, *params)
+        logger.info(f"Время выполнения get_posts: {time() - start_time:.2f} секунд")
+        return posts
     except asyncpg.PostgresError as e:
         logger.error(f"Ошибка выполнения запроса к базе данных: {e}")
         raise

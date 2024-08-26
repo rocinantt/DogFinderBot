@@ -10,6 +10,7 @@ import ujson as json
 import numpy as np
 from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
+from time import time
 
 from posts import get_posts
 from config import DATABASE_URL, logger
@@ -47,22 +48,24 @@ async def find_similar_images(image_url: str, region: str, days: int, animal_typ
     :return: список похожих постов
     :rtype: List[dict]
     """
-
+    start_time = time()
     try:
         posts = await get_posts(region, days, animal_type, area, district, unassigned)
         logger.info(f"Количество найденных постов: {len(posts)}")
+        start_image_time = time()
 
         query_image_tensor = await load_image(image_url)
         if query_image_tensor is None:
             logger.error("Не удалось загрузить изображение для сравнения.")
             return []
+        logger.info(f"Время загрузки изображения и извлечения признаков: {time() - start_image_time:.2f} секунд")
 
         query_features = extract_features(query_image_tensor).squeeze().cpu().numpy()
         similar_posts = get_top_n_similar_posts(
             query_features,
             [(post['post_link'], json.loads(post['features']), post['date']) for post in posts]
         )
-        logger.info(f"Количество найденных похожих постов: {len(similar_posts)}")
+        logger.info(f"Количество найденных похожих постов: {len(similar_posts)}. Общее время обработки: {time() - start_time:.2f} секунд")
 
         return similar_posts
     except Exception as e:

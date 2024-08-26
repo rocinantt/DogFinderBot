@@ -2,6 +2,7 @@ import os
 import requests
 from PIL import Image
 import torch
+from sklearn.preprocessing import normalize
 from transformers import ViTImageProcessor, ViTForImageClassification
 from config import logger
 
@@ -33,7 +34,7 @@ def load_image(url):
         logger.error(f"Ошибка при обработке изображения: {e}")
         raise
 
-def extract_features_batch(image_tensors):
+def extract_features(image_tensors):
     """
     Извлекает признаки из батча тензоров изображений.
 
@@ -47,6 +48,17 @@ def extract_features_batch(image_tensors):
     except Exception as e:
         logger.error(f"Ошибка при извлечении признаков из изображений: {e}")
         raise
+
+
+def normalize_features(features):
+    """
+    Нормализует векторы признаков.
+
+    :param features: векторы признаков
+    :return: нормализованные векторы признаков
+    """
+    return normalize(features.reshape(1, -1)).flatten()
+
 
 def process_post(post):
     """
@@ -62,11 +74,15 @@ def process_post(post):
             if image_tensor is None:
                 logger.error(f"Пропуск изображения по URL {photo_url} из-за ошибки загрузки.")
                 continue
-            features = extract_features_batch(image_tensor).squeeze().cpu().tolist()
-            if len(features) == 0:
+            features = extract_features(image_tensor).squeeze().cpu().numpy()
+            if features.size == 0:
                 logger.error(f"Пропуск изображения по URL {photo_url} из-за ошибки извлечения признаков.")
                 continue
-            post_features.append(features)
+
+            # Нормализация признаков перед добавлением в список
+            normalized_features = normalize_features(features)
+            post_features.append(normalized_features)
+
         return post_features
     except Exception as e:
         logger.error(f"Ошибка при обработке поста {post['post_id']}: {e}")

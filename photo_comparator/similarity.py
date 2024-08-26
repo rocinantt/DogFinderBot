@@ -25,7 +25,6 @@ def get_top_n_similar_posts(query_features, posts, n=50):
 
     for post in posts:
         post_features = np.array(post[1])
-        post_features = normalize_vectors(post_features)  # Нормализуем признаки постов
 
         index = create_faiss_index_for_post(post_features)
         distances, indices = index.search(np.array([query_features]), 1)  # Ищем самый близкий вектор внутри поста

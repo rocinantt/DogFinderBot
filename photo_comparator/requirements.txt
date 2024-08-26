@@ -8,3 +8,5 @@ python-dotenv
 fastapi
 uvicorn
 aiohttp
+ujson
+faiss-cpu

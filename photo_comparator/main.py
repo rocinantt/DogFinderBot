@@ -1,5 +1,4 @@
 import os
-import json
 import logging
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
@@ -7,14 +6,15 @@ from typing import Optional, List
 
 import asyncpg
 import aiohttp
+import ujson as json
 import numpy as np
 from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel
 
 from posts import get_posts
 from config import DATABASE_URL, logger
-from model import load_image, extract_features, processor, model
-from similarity import calculate_similarity, get_top_n_similar_posts
+from model import load_image, extract_features
+from similarity import get_top_n_similar_posts
 
 
 # Инициализация FastAPI приложения
@@ -64,7 +64,7 @@ async def find_similar_images(image_url: str, region: str, days: int, animal_typ
         )
         logger.info(f"Количество найденных похожих постов: {len(similar_posts)}")
 
-        return [{'post_link': post['post_link'], 'date': post['date']} for post in similar_posts]
+        return similar_posts
     except Exception as e:
         logger.error(f"Ошибка при поиске похожих изображений: {e}")
         raise HTTPException(status_code=500, detail="Произошла ошибка при обработке запроса.")

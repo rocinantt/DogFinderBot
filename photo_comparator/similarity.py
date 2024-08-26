@@ -1,55 +1,42 @@
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+import faiss
+from sklearn.preprocessing import normalize
 import heapq
-from config import logger
 
 
-def calculate_similarity(query_features, post_features):
-    """
-    Рассчитывает максимальную косинусную схожесть между признаками запроса и поста.
-
-    :param query_features: признаки изображения-запроса
-    :param post_features: признаки изображения-поста
-    :return: максимальная схожесть
-    :rtype: float
-    """
-    try:
-        similarities = cosine_similarity([query_features], post_features)
-        max_similarity = np.max(similarities)
-        return max_similarity
-    except Exception as e:
-        logger.error(f"Ошибка расчета схожести: {e}")
-        raise
+# Нормализуем векторы
+def normalize_vectors(vectors):
+    return normalize(vectors, axis=1)
 
 
+# Строим Faiss индекс для списка векторов внутри поста
+def create_faiss_index_for_post(post_features):
+    index = faiss.IndexFlatIP(post_features.shape[1])  # IndexFlatIP для косинусного сходства
+    index.add(post_features)
+    return index
+
+
+# Находим самый похожий вектор внутри каждого поста
 def get_top_n_similar_posts(query_features, posts, n=50):
-    """
-    Получает топ N наиболее похожих постов на основе расчета схожести.
+    best_similarities = []
 
-    :param query_features: признаки изображения-запроса
-    :param posts: список постов с их признаками и данными
-    :param n: количество возвращаемых постов
-    :return: список похожих постов
-    :rtype: List[dict]
-    """
-    try:
-        similarities = []
+    # Нормализуем целевой вектор
+    query_features = normalize_vectors(np.array([query_features]))[0]
 
-        for post in posts:
-            post_features = np.array(post[1])
-            max_similarity = calculate_similarity(query_features, post_features)
-            similarities.append(max_similarity)
+    for post in posts:
+        post_features = np.array(post[1])
+        post_features = normalize_vectors(post_features)  # Нормализуем признаки постов
 
-        # Создаем список кортежей (similarity, post_link, post_date)
-        posts_with_similarity = [(similarity, post[0], post[2]) for post, similarity in zip(posts, similarities)]
-        logger.info(f"Количество постов с рассчитанной схожестью: {len(posts_with_similarity)}")
+        index = create_faiss_index_for_post(post_features)
+        distances, indices = index.search(np.array([query_features]), 1)  # Ищем самый близкий вектор внутри поста
 
-        # Используем heapq для получения N постов с самой высокой схожестью
-        similar_posts = heapq.nlargest(n, posts_with_similarity, key=lambda x: x[0])
+        similarity = distances[0][0]  # В IndexFlatIP similarity = косинусное сходство
+        best_similarities.append((similarity, post[0], post[2]))
 
-        # Возвращаем список N наиболее похожих постов
-        return [{'post_link': post_link, 'similarity': similarity, 'date': post_date.strftime('%d-%m-%Y')}
-                for similarity, post_link, post_date in similar_posts]
-    except Exception as e:
-        logger.error(f"Ошибка получения похожих постов: {e}")
-        raise
+    # Используем heapq для получения N постов с самой высокой схожестью
+    similar_posts = heapq.nlargest(n, best_similarities, key=lambda x: x[0])
+    # Сортируем посты
+    similar_posts = sorted(similar_posts, key=lambda x: x[0], reverse=True)
+
+    return [{'post_link': post_link, 'date': post_date.strftime('%d-%m-%Y')}
+            for _, post_link, post_date in similar_posts]

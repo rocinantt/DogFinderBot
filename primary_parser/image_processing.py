@@ -97,7 +97,7 @@ def process_post(post):
 
         # Сохраняем нормализованные признаки для каждого изображения
         for normalized_features in normalized_features_batch:
-            post_features.append(normalized_features)
+            post_features.append(normalized_features.tolist())
 
         return post_features
     except Exception as e:

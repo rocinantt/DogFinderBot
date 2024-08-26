@@ -3,7 +3,6 @@ import requests
 import numpy as np
 from PIL import Image
 import torch
-from sklearn.preprocessing import normalize
 from transformers import ViTImageProcessor, ViTForImageClassification
 from config import logger
 
@@ -53,22 +52,12 @@ def extract_features_batch(image_tensors):
         raise
 
 
-def normalize_features(features):
-    """
-    Нормализует векторы признаков.
-
-    :param features: векторы признаков
-    :return: нормализованные векторы признаков
-    """
-    return normalize(features, axis=1)
-
-
 def process_post(post):
     """
     Обрабатывает пост для извлечения признаков изображений.
 
     :param post: пост с изображениями
-    :return: список нормализованных признаков изображений
+    :return: список признаков изображений
     """
     post_features = []
     image_tensors_list = []
@@ -92,12 +81,9 @@ def process_post(post):
         # Извлекаем признаки сразу для всего батча
         features_batch = extract_features_batch(image_tensors_batch).cpu().numpy()
 
-        # Нормализуем все признаки в батче
-        normalized_features_batch = normalize_features(features_batch)
-
-        # Сохраняем нормализованные признаки для каждого изображения
-        for normalized_features in normalized_features_batch:
-            post_features.append(normalized_features.tolist())
+        # Сохраняем признаки для каждого изображения
+        for features in features_batch:
+            post_features.append(features.tolist())
 
         return post_features
     except Exception as e:

@@ -7,4 +7,3 @@ transformers
 Pillow
 psycopg2-binary
 python-dotenv
-scikit-learn

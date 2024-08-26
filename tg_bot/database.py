@@ -211,7 +211,7 @@ def get_groups(region):
             cursor.execute("SELECT group_name, group_link FROM vk_groups WHERE region = %s", (region,))
             groups = cursor.fetchall()
             groups_list = [{"group_name": group[0], "group_link": group[1]} for group in groups]
-            logger.info(f"Загружено из DB: groups, region={region}")
+            logger.info(f"Загружено из DB: {groups_list}, region={region}")
 
             # Сохранение в Redis
             if redis_client:

@@ -63,7 +63,7 @@ def get_days_markup():
 
     :return: инлайн-клавиатура
     """
-    days_options = [1, 3, 7, 10, 20, 30]
+    days_options = [1, 3, 7, 15, 20, 30]
     builder = InlineKeyboardBuilder()
     for days in days_options:
         builder.button(text=str(days), callback_data=f"days_{days}")

@@ -60,7 +60,8 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         if district:
             query_params['district'] = district
 
-    logger.info(f"Пользователь {user_id} запрашивает поиск с параметрами: {query_params}")
+    name, last_name = user_id.first_name, user_id.last_name
+    logger.info(f"Пользователь {user_id}, {name, last_name} запрашивает поиск с параметрами: {query_params}")
 
     try:
         async with aiohttp.ClientSession() as session:

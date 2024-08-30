@@ -148,16 +148,8 @@ async def handle_photo(message: types.Message, state: FSMContext):
     """
     Обрабатывает отправку фотографии пользователем и предлагает выбрать район поиска.
     """
-
-    photo_file_id = message.photo[-1].file_id
-    bot = message.bot
-    file_info = await bot.get_file(photo_file_id)
-    user_id = message.from_user.id
-    photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}"
-
-    logger.info(f"Пользователь {user_id} отправил фото {photo_url}")
-
-    await state.update_data(photo=photo_url)
+    logger.info(f"Получена фотография от пользователя {message.from_user.id}")
+    await state.update_data(photo=message.photo[-1].file_id)
     user_region = get_user_region(message.from_user.id)
     data = await state.get_data()
     animal_type = data.get('animal_type')
@@ -244,7 +236,6 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
     """
     days = int(callback_query.data.split("_")[1])
     logger.info(f"Период поиска выбран пользователем {callback_query.from_user.id}: {days} дней")
-
     await state.update_data(days=days)
     await callback_query.message.edit_text(
         "Начинаю поиск объявлений о пропавших животных за выбранный период. Пожалуйста, подождите.")

@@ -26,7 +26,7 @@
 
 
 
-<img align="right" width="385" height="605" src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/5.jpg">
+<img align="right" width="385" height="605" src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/qr_new.jpg">
 Dog Finder Bot — это Telegram-бот, разработанный для оперативного соединения владельцев потерявшихся собак и тех, кто их нашел. Бот автоматически сопоставляет фотографии найденных животных с объявлениями о пропаже, увеличивая шансы на успешное возвращение питомцев домой.
 
 ### Как помогает бот:

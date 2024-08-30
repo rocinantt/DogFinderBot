@@ -33,8 +33,9 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     :param message: сообщение пользователя
     :param state: состояние FSM
     """
-    user_id = data['user_id']
+
     data = await state.get_data()
+    user_id = data['user_id']
     photo_file_id = data['photo']
     region = data.get('region')
     days = data['days']

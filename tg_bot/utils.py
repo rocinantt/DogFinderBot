@@ -33,7 +33,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
     :param message: сообщение пользователя
     :param state: состояние FSM
     """
-    user_id = message.from_user.id
+    user_id = data['user_id']
     data = await state.get_data()
     photo_file_id = data['photo']
     region = data.get('region')
@@ -59,7 +59,7 @@ async def search_similar_posts(message: types.Message, state: FSMContext):
         if district:
             query_params['district'] = district
 
-    logger.info(f"Параметры поиска: {query_params}")
+    logger.info(f"Пользователь {user_id} запрашивает поиск с параметрами: {query_params}")
 
     try:
         async with aiohttp.ClientSession() as session:

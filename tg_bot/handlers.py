@@ -235,8 +235,9 @@ async def handle_days(callback_query: CallbackQuery, state: FSMContext):
     Обрабатывает выбор периода поиска.
     """
     days = int(callback_query.data.split("_")[1])
-    logger.info(f"Период поиска выбран пользователем {callback_query.from_user.id}: {days} дней")
-    await state.update_data(days=days)
+    user_id = callback_query.from_user.id
+    logger.info(f"Период поиска выбран пользователем {user_id}: {days} дней")
+    await state.update_data(days=days, user_id=user_id)
     await callback_query.message.edit_text(
         "Начинаю поиск объявлений о пропавших животных за выбранный период. Пожалуйста, подождите.")
     await search_similar_posts(callback_query.message, state)

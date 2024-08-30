@@ -157,7 +157,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
 
     logger.info(f"Пользователь {user_id} отправил фото {photo_url}")
 
-    await state.update_data(photo=photo_ulr)
+    await state.update_data(photo=photo_url)
     user_region = get_user_region(message.from_user.id)
     data = await state.get_data()
     animal_type = data.get('animal_type')

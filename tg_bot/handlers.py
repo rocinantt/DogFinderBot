@@ -148,7 +148,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     """
     Обрабатывает отправку фотографии пользователем и предлагает выбрать район поиска.
     """
-    logger.info(f"Получена фотография от пользователя {message.from_user.id}")
+    logger.info(f"Получена фотография от  {message.from_user.id}")
     await state.update_data(photo=message.photo[-1].file_id)
     user_region = get_user_region(message.from_user.id)
     data = await state.get_data()

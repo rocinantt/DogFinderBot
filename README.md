@@ -22,7 +22,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<img align="right" width="385" height="583" src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/qr_new.png">
+<img align="right" width="385" height="570" src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/qr_new.png">
 sledoPET — это Telegram-бот, созданный для быстрой помощи владельцам потерявшихся питомцев. Бот автоматически сопоставляет фотографии найденных животных с объявлениями о пропаже, повышая шансы на успешное возвращение питомцев домой.
 
 ### Как помогает бот:

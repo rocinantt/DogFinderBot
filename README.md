@@ -7,8 +7,10 @@
 
   <h3 align="center"></h3>
 
-  <p align="center">
+  <h3 align="center">
     Бот, который помогает потерявшимся питомцам вернуться домой.
+</h3>
+<p>
     <br />
     <br />
     <a href="https://web.telegram.org/a/#7411138567">Использовать бота</a>

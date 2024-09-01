@@ -11,9 +11,7 @@
     Бот, который помогает потерявшимся питомцам вернуться домой.
 </h3>
 <p>
-    <br />
-    <br />
-    <a href="https://web.telegram.org/a/#7411138567">Использовать бота</a>
+  <a href="https://web.telegram.org/a/#7411138567">Использовать бота</a>
     ·
     <a href="https://github.com/rocinantt/sledoPET/issues/new?labels=bug&template=bug-report---.md">Сообщить о багах</a>
     ·

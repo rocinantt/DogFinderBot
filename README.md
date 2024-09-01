@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/rocinantt/sledoPET">
-    <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/logo.png" alt="Logo" width="512" height="512">
+    <img src="https://github.com/rocinantt/DogFinderBot/blob/main/photo/logo.png" alt="Logo" width="768" height="768">
   </a>
 
   <h3 align="center"></h3>
